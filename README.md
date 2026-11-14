@@ -1,5 +1,7 @@
 # Buckling of a floating viscous layer: MSc analysis code
 
+[![Licence: MIT](https://img.shields.io/badge/licence-MIT-blue.svg)](LICENSE)
+
 This repository holds the analysis code from an MSc thesis in physics
 (Institute for Advanced Studies in Basic Sciences, IASBS, Zanjan, 2014–2017).
 
