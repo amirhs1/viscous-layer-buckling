@@ -14,6 +14,7 @@ authors:
   - given-names: Amir
     family-names: Sadeghi
 license: MIT
+doi: 10.5281/zenodo.24227730
 repository-code: "https://github.com/amirhs1/viscous-layer-buckling"
 keywords:
   - viscous buckling

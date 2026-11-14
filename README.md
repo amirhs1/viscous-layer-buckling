@@ -2,6 +2,7 @@
 
 [![Licence: MIT](https://img.shields.io/badge/licence-MIT-blue.svg)](LICENSE)
 [![Tests](https://github.com/amirhs1/viscous-layer-buckling/actions/workflows/tests.yml/badge.svg)](https://github.com/amirhs1/viscous-layer-buckling/actions/workflows/tests.yml)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24227730.svg)](https://doi.org/10.5281/zenodo.24227730)
 
 This repository holds the analysis code from an MSc thesis in physics
 (Institute for Advanced Studies in Basic Sciences, IASBS, Zanjan, 2014–2017).
@@ -97,7 +98,8 @@ listed there under *Known issues*.
 
 The code is released under the MIT licence; see [`LICENSE`](LICENSE). The input data are
 not part of this repository; when shared, they are released under
-[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) (see *Data availability*). To cite this repository, see
+[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) (see *Data availability*). To cite this repository, use its DOI,
+[10.5281/zenodo.24227730](https://doi.org/10.5281/zenodo.24227730), which always points to the latest version, or see
 [`CITATION.cff`](CITATION.cff).
 
 The OpenCV stages link the [GNU Scientific Library](https://www.gnu.org/software/gsl/), which is
