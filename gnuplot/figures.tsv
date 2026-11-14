@@ -2,10 +2,10 @@
 # name	data	col	meta	ylabel	title	key
 04-variance-vs-time	series/l175_h2/smooth.txt	9	l175_h2	Variance (mm^{2})	Variance vs. time at different compression velocities, with transition points	top left
 04b-curvature-vs-time-l175-h2	series/l175_h2/smooth.txt	4	l175_h2	Curvature (mm^{-1})	Curvature vs. time at different compression velocities, with transition points	top left
-05-curvature-vs-time	series/l200_h2.5/smooth.txt	9	l200_h2.5	Variance (mm^{2})	Variance vs. time at different compression velocities	top left
+05-variance-vs-time-l200	series/l200_h2.5/smooth.txt	9	l200_h2.5	Variance (mm^{2})	Variance vs. time at different compression velocities	top left
 05b-variance-l200-all	series/all/smooth-200.txt	9	all_200	Variance (mm^{2})	Variance vs. time, L=200 mm series, with transition points	top left
 09-all-runs-plot	series/l175_h2.85/smooth-175.txt	4	l175_h2.85	Mean curvature (mm^{-1})	Mean curvature across experiments	off
-15-movave-curvature-index	series/l175_h2.85/smooth-175.txt	9	l175_h2.85_var	Variance (mm^{2})	Variance across experiments, with transition points	top left
+15-movave-variance-index	series/l175_h2.85/smooth-175.txt	9	l175_h2.85_var	Variance (mm^{2})	Variance across experiments, with transition points	top left
 17-spline-amplitude-index	series/l175_h2.85/amplitude/smooth.txt	5	l175_h2.85_amp	Amplitude (mm) - B-spline	Amplitude across experiments (B-spline smoothing)	top left
 18-movave-amplitude-index	series/l175_h2.85/amplitude/smooth.txt	3	l175_h2.85_amp	Amplitude (mm) - moving avg.	Amplitude across experiments (moving-average smoothing)	top left
 14-spline-curvature-index	series/l175_h2.85/smooth-175.txt	7	l175_h2.85_spl	Curvature (mm^{-1})	Curvature vs. time at different compression velocities - B-spline method	bmargin
