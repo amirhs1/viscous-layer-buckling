@@ -57,7 +57,7 @@ skipped, so notes and stray files can live alongside the data.
 export MSC_DATA=/path/to/data   # the input data folder; there is no default
 bin/02_make_stage_dirs.sh ~/Experiment-Videos -5-MinContour
 bin/03_build_input_table.sh ~/Experiment-Videos
-bin/04_run_template_matching.sh ../opencv/build/template-matching
+bin/04_run_template_matching.sh ../opencv/build/template-matching   # MSC_NO_DISPLAY=1 to run without windows
 ```
 
 Step 1 is per-experiment and only needed for runs whose frames still
@@ -81,8 +81,8 @@ is not kept here — pass `outfile` to send it elsewhere.
 - [`plots/mean_curvature.gp`](plots/mean_curvature.gp) — smoothed mean
   curvature against normalized frame number. Defaults to overlaying the
   two smoothings (B-spline and moving-average) of one experiment; point
-  `series_a`/`series_b` at two `-SmoothedData.txt` files to compare
-  experiments instead.
+  `series_a`/`series_b` at two stage 3 `-SmoothedData.txt` files to compare
+  experiments instead (stage 4's files use other columns).
 - [`plots/frame_variance.gp`](plots/frame_variance.gp) — per-frame
   variance of the interface profile against normalized frame number,
   from `-FrameStatistics.txt`. This is the amplitude growth curve of
@@ -208,7 +208,7 @@ copy is the tidied final version, and it holds the corrected value.
 ## Corrections
 
 Four defects in the original scripts are fixed here. They are listed
-because the historical files are preserved alongside the corrected
+because the historical files are kept with the data (`batch-inputs/`) alongside the corrected
 ones, and the difference matters if the old outputs are ever reused.
 
 **Column order in the batch table.** Stage 2 takes no arguments; it
@@ -219,7 +219,7 @@ experiment_folder  experiment_name  initial_length  motor_frequency  fps  pixels
 ```
 
 The original `paste exp exp-path l.txt fre.txt f.txt p.txt` put the
-name before the path, and the surviving `inputs.txt` carries a seventh
+name before the path, and the surviving table (now `stage2_input_table_original.txt`) carries a seventh
 leading column — the `-1-Renumbered/...%04d.tif` sequence pattern —
 left over from an earlier design in which the path was an `argv`
 argument. Stage 2 now builds that path itself from folder and name and
@@ -248,11 +248,8 @@ the row-at-a-time stdin loop that step 4 implements.
 
 ## Requirements
 
-- Bash 3.2 or newer (the version shipped with macOS is sufficient)
-- [gnuplot](http://www.gnuplot.info/) 5 or newer, with the `pngcairo`
-  terminal, for the plotting scripts
-- The stage 2 executable from the [OpenCV project](../opencv/README.md),
-  for step 4
+See *Requirements* in the [main README](../README.md); step 4 also needs the stage 2
+executable from the [OpenCV project](../opencv/README.md).
 
 `dos2unix` is no longer needed — step 3 strips the data sheet's DOS
 line endings itself.

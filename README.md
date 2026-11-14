@@ -17,7 +17,7 @@ The thesis text is not included here.
 |--------|------------|
 | [`opencv/`](opencv/README.md) | The analysis. A C++ pipeline (OpenCV / GSL / Boost) in four sequential stages, built by one CMake project, that extracts amplitude and curvature over time from the video. `variants/` keeps three experimental versions that are not built. |
 | [`shell/`](shell/README.md) | Batch drivers. They assemble the per-experiment inputs, run the 70 experiments through the pipeline unattended, and plot the result. |
-| [`gnuplot/`](gnuplot/README.md) | The figures. Thirteen gnuplot files produce the 21 thesis figures, and `./render.sh` renders them all. `velocity_frequency/` holds the critical-velocity fit. |
+| [`gnuplot/`](gnuplot/README.md) | The figures. Thirteen gnuplot files produce 21 figures (20 for the thesis and gnuplot's `test` page), and `./render.sh` renders them all. `velocity_frequency/` holds the critical-velocity fit. |
 
 The folders depend on each other in one direction only. `shell/` drives `opencv/`:
 its step 4 feeds the batch table to the stage 2 executable. `gnuplot/` stands alone and
@@ -38,7 +38,7 @@ data (the 21 in `gnuplot/`, the two in `gnuplot/velocity_frequency/` and the two
 
 | For | Needs |
 |---|---|
-| `opencv/` | CMake >= 2.8, a C++11 compiler, OpenCV, GSL, Boost `filesystem` |
+| `opencv/` | CMake >= 3.5, a C++11 compiler, OpenCV 4 or later, GSL, Boost `filesystem` (built and tested on 2026-11-14 with CMake 4.5, OpenCV 5.1, GSL 2.8, Boost 1.92) |
 | `shell/` | Bash 3.2+, gnuplot 5+ with the `pngcairo` terminal |
 | `gnuplot/` | gnuplot 5+ (verified on 6.0); ghostscript only for `render.sh --png` |
 
@@ -76,12 +76,17 @@ reads these parts of the data folder and never writes to it:
 | `marker-templates/` | OpenCV stage 1, located when the project is configured (`cmake -DMSC_DATA_DIR=…`) |
 
 The data folder also keeps records the code does not read: the batch inputs used in 2016
-(`batch-inputs/`) and the ImageJ length logs (`length-logs/`). Everything the code writes goes
-to `gnuplot/images/`, `shell/work/` or the CMake build folder, all ignored by git.
+(`batch-inputs/`) and the ImageJ length logs (`length-logs/`). The code never writes to the data
+folder. The figures go to `gnuplot/images/`, the lists of shell step 3 to `shell/work/` and stage 2's
+regression rows to the CMake build folder, all ignored by git; the OpenCV stages and shell
+steps 1–2 write into the experiment folder they are given, as they did in 2016.
 
 ## Status
 
-This is archival research code from 2015–2016, published as it was used.
+This is archival research code from 2015–2016. It is published as it was used, apart from the
+changes needed to build and run it today and the crash fixes listed under *Changes since 2016*
+in [`opencv/README.md`](opencv/README.md). Bugs that affect the archived results are kept and
+listed there under *Known issues*.
 
 ## Licence
 
@@ -89,3 +94,7 @@ The code is released under the MIT licence; see [`LICENSE`](LICENSE). The input 
 not part of this repository; when shared, they are released under
 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) (see *Data availability*). To cite this repository, see
 [`CITATION.cff`](CITATION.cff).
+
+The OpenCV stages link the [GNU Scientific Library](https://www.gnu.org/software/gsl/), which is
+released under the GPL v3, so binaries built from them are covered by the GPL v3. The B-spline
+fits in stages 3 and 4 follow the example in the GSL manual.

@@ -1,6 +1,6 @@
 # Gnuplot examples — MSc, buckling of a floating viscous layer
 
-Thirteen gnuplot files producing 21 figures. Everything reads from the `series/`
+Thirteen gnuplot files producing 21 figures (one of them gnuplot's own `test` page). Everything reads from the `series/`
 folder of the input data, which `MSC_DATA` names (see *Data layout* in the
 [main README](../README.md)), and writes to `images/`.
 
@@ -55,17 +55,17 @@ adding a figure means adding a row to `figures.tsv` — not copying a script.
 | #   | Script                      | Technique                                                       |
 | --- | --------------------------- | --------------------------------------------------------------- |
 | 01  | run-diagnostics-multiplot   | 3-panel A / K / sigma, shared x-axis, annotated transition      |
-| 02  | curve-fit                   | nonlinear `fit` + `stats`, fitted curve over raw data           |
+| 02  | curve-fit                   | `stats` mean, then the data and the data minus its mean (no fit) |
 | 03  | strain-vs-time-presentation | multi-series, pattern fills, dashed critical-strain markers     |
-| 06  | local-strain                | `stats` prefixes, computed columns, grouped by layer thickness  |
+| 06  | local-strain                | `stats` prefixes, computed columns, grouped by layer thickness; strain rate scaled by the _instantaneous_ length |
 | 07  | period-variance             | derived quantity from multi-column data                         |
-| 08  | strain-curvature            | as 06, but scaled by _instantaneous_ rather than initial length |
+| 08  | strain-curvature            | as 06, but scaled by the _initial_ length, against the transition time from the curvature minimum (column 11) |
 | 10  | single-run-plot             | log-log comparison of B-spline vs moving-average smoothing      |
 | 11  | multiplot                   | landscape multi-panel layout                                    |
 | 12  | movave-curvature-4data      | four explicit data files on shared axes                         |
 | 13  | movave-curvature-forloop    | `plot for [IDX=0:10]` with `columnheader` titles                |
 | 16  | movave-curvature-multiplot  | 10-panel grid, each comparing run 0 against run _i_             |
-| 19  | color-palette-helper        | shared colour/style definitions                                 |
+| 19  | color-palette-helper        | gnuplot's `test` page: the terminal's colours, line types and point types |
 
 06 and 08 were deliberately **not** merged: they use different physics (initial
 vs time-dependent length scaling), not different formatting.

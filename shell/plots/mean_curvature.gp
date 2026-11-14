@@ -3,7 +3,7 @@
 # Mean interface curvature against normalized frame number, for one or
 # more experiments.
 #
-# Input: any tab-separated file written by stage 3/4 of the OpenCV
+# Input: any tab-separated file written by stage 3 (stage 4 uses other columns) of the OpenCV
 # pipeline whose columns are
 #   1: frame number   2: normalized frame number   3: smoothed curvature (1/mm)
 # That is the layout of "<experiment_name>-SmoothedData.txt", and of the
@@ -18,7 +18,7 @@
 #               series_b='B-SmoothedData.txt'; \
 #               label_b='8.8 Hz'" plots/mean_curvature.gp
 
-# Input data folder: DATA_DIR if given (render.sh passes it), otherwise $MSC_DATA.
+# Input data folder: DATA_DIR if given with -e, otherwise $MSC_DATA.
 if (!exists("DATA_DIR")) DATA_DIR = system('printf "%s" "$MSC_DATA"')
 if ((!exists("series_a") || !exists("series_b")) && DATA_DIR eq "") { exit error "MSC_DATA is not set: export MSC_DATA=/path/to/data (see Data availability in README.md)" }
 if (!exists("series_a")) series_a = DATA_DIR."/curvature-reference/spline.txt"

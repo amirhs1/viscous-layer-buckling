@@ -3,8 +3,8 @@
 # Per-frame variance of the interface profile against normalized frame
 # number -- the amplitude growth curve of the buckling instability.
 #
-# Input: "<experiment_name>-FrameStatistics.txt" from stage 3/4 of the
-# OpenCV pipeline, or the bundled reference copy. Columns are
+# Input: "<experiment_name>-FrameStatistics.txt" from stage 3 of the
+# OpenCV pipeline (stage 4 writes other columns), or the reference copy. Columns are
 #   1: frame number      2: normalized frame number  3: maximum y (mm)
 #   4: minimum y (mm)    5: abs(max/min)             6: frame variance (mm^2)
 #   7: mean curvature    8: peak FFT frequency
@@ -15,7 +15,7 @@
 #   gnuplot -e "series='A-FrameStatistics.txt'; outfile='A.png'" \
 #           plots/frame_variance.gp
 
-# Input data folder: DATA_DIR if given (render.sh passes it), otherwise $MSC_DATA.
+# Input data folder: DATA_DIR if given with -e, otherwise $MSC_DATA.
 if (!exists("DATA_DIR")) DATA_DIR = system('printf "%s" "$MSC_DATA"')
 if (!exists("series") && DATA_DIR eq "") { exit error "MSC_DATA is not set: export MSC_DATA=/path/to/data (see Data availability in README.md)" }
 if (!exists("series"))  series  = DATA_DIR."/curvature-reference/frame_statistics.txt"

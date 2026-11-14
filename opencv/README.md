@@ -1,8 +1,8 @@
 # Interface Curvature Tracking Pipeline (OpenCV / GSL / Boost)
 
 C++ pipeline for extracting interface shape statistics — amplitude and
-curvature over time — from high-speed video of a fluid or fibre
-interface. Developed for MSc research as four sequential stages, built
+curvature over time — from video of the interface of a thin viscous
+layer floating on a liquid. Developed for MSc research as four sequential stages, built
 here as four executables from a single CMake project.
 
 Part of [this repository](../README.md). The [batch drivers](../shell/README.md)
@@ -14,7 +14,8 @@ turns its output into the thesis figures.
 ```
 .
 ├── CMakeLists.txt   # builds all four stage executables
-└── src/             # one source file per pipeline stage
+├── src/             # one source file per pipeline stage
+└── variants/        # three experimental versions, not built (see variants/README.md)
 ```
 
 ## Pipeline stages
@@ -31,10 +32,9 @@ runtime and write tab-separated `.txt` results back into it.
 
 ## Dependencies
 
-- CMake >= 2.8 and a C++11 compiler
-- [OpenCV](https://opencv.org/) (`videoio`, `highgui`, `imgproc`, `video`)
-- [GSL](https://www.gnu.org/software/gsl/) — FFT, B-splines, statistics (stages 2–4)
-- [Boost](https://www.boost.org/) `filesystem` (stages 2–4)
+See *Requirements* in the [main README](../README.md). The OpenCV modules used are `videoio`,
+`highgui`, `imgproc` and `video`; GSL provides the fits, FFT, B-splines and statistics, and Boost
+`filesystem` creates the output folders.
 
 ## Build
 
@@ -49,6 +49,9 @@ make
 `MSC_DATA_DIR` is the input data folder (see *Data availability* in the
 [main README](../README.md)). It has no default: configuring stops if it is not
 set. Only stage 1 uses it, for its marker templates.
+
+Every stage shows preview windows while it runs. Set `MSC_NO_DISPLAY=1` to run without them,
+for example in a batch or over SSH; the outputs are the same.
 
 ## Run
 
@@ -84,26 +87,25 @@ length log to `<experiment_name>-Velovity-Log.txt`, and one summary row
 per run is appended to `linear_regression_data.txt` in the build folder, never in the data folder.
 
 > **Workflow gap:** stage 2 emits `-2-TemMat/`, but stages 3–4 expect
-> `-3-Resized/` and `-4-Thershold/`. Both were produced in **ImageJ**,
-> not by this codebase: rolling-ball background subtraction (separate
-> colours, smoothing disabled) followed by Li-method thresholding, then
-> saved under the `-4-Thershold/` naming convention. The per-experiment
-> settings are recorded in the `IMAGE PROCESSING` block of
-> `experiment_report_data_sheet.csv` in the input data
-> (rows 143–149) — but only for the first four experiments; the
-> threshold bounds for the remaining 66 were not logged. The four stages
-> are therefore not runnable back-to-back, and an exact re-run of the
-> thresholding is possible only for experiments 2–4.
+> `-3-Resized/` and `-4-Thershold/`. Both were made by hand in **ImageJ**
+> (background subtraction, then thresholding), not by this code, so the
+> four stages cannot be run back-to-back. The ImageJ settings survive for
+> only four of the 70 experiments; see the `IMAGE PROCESSING` table in
+> [`../shell/README.md`](../shell/README.md).
 
 **Stages 3 and 4** — read the thresholded sequence produced upstream.
 Both take the experiment folder and name as arguments; they differ only
 in how the scale factor is supplied. Stage 3 prompts for it on stdin,
-stage 4 takes it as a third argument:
+stage 4 takes it as a third argument, followed by a period switch:
 
 ```bash
 ./interface-statistics <experiment_folder> <experiment_name>   # then enter mm-per-pixel when prompted
-./final-pipeline       <experiment_folder> <experiment_name> <mm_per_pixel>
+./final-pipeline       <experiment_folder> <experiment_name> <mm_per_pixel> <period_switch>
 ```
+
+With `<period_switch>` 1, stage 4 also measures the oscillation period of the smoothed variance
+(for runs that oscillate before they buckle) and writes it to `<experiment_name>-FrequencyData.txt`;
+with 0 it skips that step.
 
 Note the scale factor here is **millimetres per pixel** — the
 reciprocal of the pixels-per-mm value stage 2 asks for.
@@ -132,8 +134,9 @@ The input data are not part of this repository (see *Data availability* in the
 [main README](../README.md)). This project uses, relative to `MSC_DATA_DIR`:
 
 - `marker-templates/left.jpg`, `marker-templates/right.jpg` — marker templates for stage 1
-- `regression/linear_regression_data.txt` — the archived table, one linear-regression summary row per
-  experiment run as stage 2 appended them in 2016; new runs append to the build folder instead
+- `regression/linear_regression_data.txt` — not read by any stage: the archived table, one
+  linear-regression summary row per experiment run as stage 2 appended them in 2016; new runs
+  append to the build folder instead
 
 There is no sample stage 2 input here. The only surviving batch table is
 the historical seven-column one kept with the batch scripts at
@@ -167,3 +170,45 @@ See [`../shell/README.md`](../shell/README.md) for a comparison of
 `regression/linear_regression_data.txt` against its near-duplicate, the shell copy,
 including which velocity is correct for the one experiment where they
 disagree.
+
+## Changes since 2016
+
+Needed to build and run with current libraries, and to stop crashes; none changes a value written by
+a run that used to succeed (checked on 2026-11-14 by running every stage on test inputs with known
+answers and comparing every output file):
+
+- OpenCV 4 removed the C constants `CV_RETR_EXTERNAL`, `CV_CHAIN_APPROX_NONE` and `CV_FILLED`; the
+  C++ names with the same values are used instead.
+- OpenCV 4 returns image sequences as colour frames, which `findContours` rejects; stages 3 and 4
+  turn that conversion off (`CAP_PROP_CONVERT_RGB`), as OpenCV 2 and 3 read the thresholded TIFFs.
+- Stage 4 freed an array in `BSplineCurvature` and then read it to find the oscillation period
+  (use after free); it is now freed after its last use. With fewer than two extrema it reports that
+  there is no period instead of crashing; it requires the 4th argument it reads.
+- Stages 3 and 4 stop with a message when a thresholded frame has no contour or an original frame
+  is missing, instead of reading out of bounds.
+- Stage 2 reads the folder and name as whole lines, so paths may contain spaces.
+- Per-frame memory is freed, file output is no longer flushed on every line, an unused contour
+  drawing per frame is gone, and `MSC_NO_DISPLAY` turns the preview windows off.
+- Commented-out code was deleted; git history keeps it.
+
+## Known issues
+
+These bugs are in the code that produced the archived results, so they are kept: fixing them would
+make new runs disagree with the thesis.
+
+- The fit-parameter files print `stderr` (a pointer address such as `0x7fff…`) where an error value
+  was meant (stages 3 and 4).
+- Some rows are written without a separator; for example stage 4 writes the period in seconds and
+  the frame interval as one number (`0.4268570.0166`).
+- Stage 3 multiplies y by the mm-per-pixel scale twice in column 3 of `-FFT.txt`.
+- Stage 4 uses a fixed frame interval of 0.0166 s instead of 1/fps, and writes a literal `?` as the
+  curvature error in `-FrameStatistics.txt`.
+- Stage 3's "mean curvature" is the mean of |Δ²y| per pixel, not 1/mm; its "maximum FFT frequency"
+  is the largest FFT coefficient.
+- The normalized frame number uses different denominators in different files; in stage 4's
+  transition table some columns are one frame earlier than others; K'' is divided by the cube of
+  the mm-per-pixel scale.
+- Stage 4's period search misses an extremum where the derivative is exactly zero, and its result is
+  approximate: on a test signal with a period of 24 frames it reports 25.7.
+- Stages 3 and 4 write files with the same names in different layouts, so running one after the
+  other in the same folder overwrites the first one's results.
