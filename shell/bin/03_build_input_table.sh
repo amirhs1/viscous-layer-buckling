@@ -144,9 +144,9 @@ columns=(
     pixels_per_mm.txt
 )
 
-expected=$(wc -l < "$output_dir/experiment_paths.txt")
+expected=$(( $(wc -l < "$output_dir/experiment_paths.txt") ))   # $(( )) drops the padding BSD wc adds
 for column in "${columns[@]}"; do
-    actual=$(wc -l < "$output_dir/$column")
+    actual=$(( $(wc -l < "$output_dir/$column") ))
     if (( actual != expected )); then
         echo "error: $column has $actual rows, expected $expected." >&2
         echo "       The tree and the data sheet are joined by position," >&2
