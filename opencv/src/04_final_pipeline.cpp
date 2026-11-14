@@ -92,9 +92,6 @@ int main (int argc, char* argv[]){
     
 
     VideoCapture cap {input_address};
-    // Keep the thresholded frames 8-bit single-channel, as OpenCV 2/3 returned them;
-    // since OpenCV 4 an image sequence is converted to BGR, which findContours rejects.
-    cap.set (CAP_PROP_CONVERT_RGB, false);
     if (!cap.isOpened())
     {
         cerr << "Failed to open Image Sequence!\n" << endl;
@@ -205,6 +202,8 @@ int main (int argc, char* argv[]){
             return 1;
         }
         //Find the contour with the most points in each frame:
+        // Image sequences are read as 3-channel images, and findContours needs one channel.
+        if (frame.channels () != 1) cvtColor (frame, frame, COLOR_BGR2GRAY);
         findContours(frame, contours, hierarchy, RETR_EXTERNAL, CHAIN_APPROX_NONE);
         if (contours.empty()) {
             cerr << "error: no contour in thresholded frame " << frameindex << endl;

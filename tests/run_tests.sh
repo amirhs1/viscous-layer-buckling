@@ -85,6 +85,12 @@ echo 0.1 | "$B/interface-statistics" "$W/stage3/$N" "$N" > "$W/stage3.log" 2>&1;
 check "exit 0" '[[ $rc == 0 ]]' || show_log "$W/stage3.log"
 check "amplitude and variance of every frame match the interface (0.1 mm per pixel)" \
     'same_stats 3 "$W/stage3/$N/expected.txt" "$W/stage3/$N/$N-FrameStatistics.txt" 0.1'
+C=D3333_33_33-T33_33
+stage34_inputs "$W/stage3-colour/$C" colour
+echo 0.1 | "$B/interface-statistics" "$W/stage3-colour/$C" "$C" > "$W/stage3-colour.log" 2>&1; rc=$?
+check "thresholded frames stored in colour (as OpenCV 4.6 reads them) give the same statistics" \
+    '[[ $rc == 0 ]] && same_stats 3 "$W/stage3-colour/$C/expected.txt" "$W/stage3-colour/$C/$C-FrameStatistics.txt" 0.1' ||
+    show_log "$W/stage3-colour.log"
 K=D2222_22_22-T22_22
 stage34_inputs "$W/stage3-blank/$K" blank
 out=$(echo 0.1 | "$B/interface-statistics" "$W/stage3-blank/$K" "$K" 2>&1); rc=$?

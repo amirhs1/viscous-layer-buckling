@@ -21,7 +21,7 @@ was also run with OpenCV 5.1 on macOS.
 | build | two made-up marker templates | the input generator and the four stages build; configuring without `MSC_DATA_DIR` stops with a message |
 | stage 1 | the markers in a 640 x 240 sequence | reads it and prints the frame size |
 | stage 2 | the markers moving 2 px per frame each, 60 fps, 6.3 px per mm | velocity −38.0952 mm/s (−4 × 60 / 6.3) and scale 1/6.3 mm per pixel |
-| stage 3 | a sinusoidal interface whose amplitude grows 1 px per frame | amplitude and variance of every frame (0.1 mm per pixel); stops with a message at a frame with no contour |
+| stage 3 | a sinusoidal interface whose amplitude grows 1 px per frame | amplitude and variance of every frame (0.1 mm per pixel); the same when the thresholded frames are stored in colour, as OpenCV 4.6 returns them; stops with a message at a frame with no contour |
 | stage 4 | the same interface, period switch 0 | amplitude and variance of every frame; writes the smoothed data and the transition point |
 | stage 4 | an amplitude oscillating with a period of 24 frames, switch 1 | reports 25.7143 frames, the value listed under *Known issues* in `opencv/README.md` |
 | stage 4 | three arguments only | prints its usage and exits non-zero |

@@ -7,7 +7,7 @@
 //       Stage 2's templates green.tif and red.tif, and 40 frames in
 //       <experiment_dir>/<name>-1-Renumbered/ in which the markers move 2 px per frame toward
 //       each other (<name> is the last part of <experiment_dir>).
-//   make-inputs stage34 <experiment_dir> growing|oscillating|blank
+//   make-inputs stage34 <experiment_dir> growing|oscillating|blank|colour
 //       A binary interface y = 100 + A sin(2 pi x / 100), rounded to whole pixels, in
 //       <name>-4-Thershold/ (white layer above, black below), the matching originals in
 //       <name>-3-Resized/, and expected.txt: per frame, the amplitude (max - min of y) and the
@@ -16,6 +16,8 @@
 //         oscillating: A = 6 + 3 sin(2 pi (i + 0.3) / 24), a period of 24 frames, 96 frames
 //                      (the 0.3 phase keeps the smoothed variance from having a zero derivative)
 //         blank:       as growing, 3 frames, but frame 2 is all black (no contour)
+//         colour:      as growing, but the thresholded frames are stored as 3-channel images,
+//                      which is how OpenCV 4.6 returns them whatever the stage asks for
 #include <opencv2/opencv.hpp>
 #include <cmath>
 #include <cstdio>
@@ -70,7 +72,7 @@ static int stage34 (const string &exp, const string &mode) {
     const string name = basename_of(exp);
     const int width = 400, height = 200, y0 = 100, wavelength = 100;
     int frames;
-    if (mode == "growing") frames = 30;
+    if (mode == "growing" || mode == "colour") frames = 30;
     else if (mode == "oscillating") frames = 96;
     else if (mode == "blank") frames = 3;
     else { std::cerr << "unknown mode " << mode << std::endl; return 1; }
@@ -91,7 +93,9 @@ static int stage34 (const string &exp, const string &mode) {
         grey.setTo(187, binary);                                           // 187 (= 255 / 2 + 60) above
         cvtColor(grey, original, COLOR_GRAY2BGR);
         std::snprintf(file, sizeof file, "%s/%s-4-Thershold/%s-Thershold-%04d.tif", exp.c_str(), name.c_str(), name.c_str(), i + 1);
-        if (!write(file, binary)) return 1;
+        Mat stored = binary;
+        if (mode == "colour") cvtColor(binary, stored, COLOR_GRAY2BGR);
+        if (!write(file, stored)) return 1;
         std::snprintf(file, sizeof file, "%s/%s-3-Resized/%s-Resized-%04d.tif", exp.c_str(), name.c_str(), name.c_str(), i + 1);
         if (!write(file, original)) return 1;
         long lo = y[0], hi = y[0];
@@ -112,6 +116,6 @@ int main (int argc, char *argv[]) {
     if (cmd == "stage12" && argc == 4) return stage12(argv[2], argv[3]);
     if (cmd == "stage34" && argc == 4) return stage34(argv[2], argv[3]);
     std::cerr << "usage: make-inputs markers <dir> | stage12 <experiment_dir> <marker_dir> | "
-                 "stage34 <experiment_dir> growing|oscillating|blank" << std::endl;
+                 "stage34 <experiment_dir> growing|oscillating|blank|colour" << std::endl;
     return 2;
 }

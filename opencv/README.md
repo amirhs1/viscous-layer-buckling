@@ -179,8 +179,9 @@ answers and comparing every output file):
 
 - OpenCV 4 removed the C constants `CV_RETR_EXTERNAL`, `CV_CHAIN_APPROX_NONE` and `CV_FILLED`; the
   C++ names with the same values are used instead.
-- OpenCV 4 returns image sequences as colour frames, which `findContours` rejects; stages 3 and 4
-  turn that conversion off (`CAP_PROP_CONVERT_RGB`), as OpenCV 2 and 3 read the thresholded TIFFs.
+- OpenCV 4 and later return image sequences as colour frames, which `findContours` rejects; stages 3
+  and 4 (and the two variants) convert each thresholded frame to one channel before finding its
+  contour. For black-and-white frames this gives the same values OpenCV 2 and 3 read.
 - Stage 4 freed an array in `BSplineCurvature` and then read it to find the oscillation period
   (use after free); it is now freed after its last use. With fewer than two extrema it reports that
   there is no period instead of crashing; it requires the 4th argument it reads.
