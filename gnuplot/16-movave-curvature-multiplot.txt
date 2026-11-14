@@ -1,0 +1,86 @@
+# Source: gnuplot/L175-h2.85/movave-cur-for-multiplot.txt (pre-refactor layout)
+
+# Input data folder: DATA_DIR if given (render.sh passes it), otherwise $MSC_DATA.
+if (!exists("DATA_DIR")) DATA_DIR = system('printf "%s" "$MSC_DATA"')
+if (DATA_DIR eq "") { exit error "MSC_DATA is not set: export MSC_DATA=/path/to/data (see Data availability in README.md)" }
+
+#!/usr/local/bin/gnuplot
+set terminal postscript eps colortext color font "Times-Roman,12"
+set output 'images/16-movave-curvature-multiplot.eps'
+
+set multiplot layout 5,2
+
+unset xtics
+set bmargin 0
+set ylabel 'Curvature (mm^{-1})'
+plot DATA_DIR.'/series/l175_h2.85/smooth-175.txt' i 0 u 2:4 w lines title 'run 0' , '' i 1 u 2:4 w lines title 'run 1' 
+
+unset xtics
+unset ytics
+set bmargin 0
+
+set ylabel ''
+plot DATA_DIR.'/series/l175_h2.85/smooth-175.txt' i 0 u 2:4 w lines title 'run 0' ,''i 2 u 2:4 w lines title 'run 2' 
+
+set ytics
+set tmargin 1
+set bmargin 0
+set ylabel 'Curvature (mm^{-1})'
+plot DATA_DIR.'/series/l175_h2.85/smooth-175.txt' i 0 u 2:4 w lines title 'run 0' , ''i 3 u 2:4 w lines title 'run 3' 
+
+
+unset xtics
+unset ytics
+set tmargin 1
+set bmargin 0
+set ylabel ''
+plot DATA_DIR.'/series/l175_h2.85/smooth-175.txt' i 0 u 2:4 w lines title 'run 0' ,''i 4 u 2:4 w lines title 'run 4' 
+
+unset xtics
+set ytics
+set tmargin 1
+set bmargin 0
+set ylabel 'Curvature (mm^{-1})'
+plot DATA_DIR.'/series/l175_h2.85/smooth-175.txt'i 0 u 2:4 w lines title 'run 0' ,'' i 5 u 2:4 w lines title 'run 5' 
+
+unset xtics
+unset ytics
+set tmargin 1
+set bmargin 0
+
+set ylabel ''
+plot DATA_DIR.'/series/l175_h2.85/smooth-175.txt'  i 0 u 2:4 w lines title 'run 0' ,'' i 6 u 2:4 w lines title 'run 6' 
+
+unset xtics
+set ytics
+set tmargin 1
+set bmargin 0
+set ylabel 'Curvature (mm^{-1})'
+plot DATA_DIR.'/series/l175_h2.85/smooth-175.txt' i 0 u 2:4 w lines title 'run 0' ,'' i 7 u 2:4 w lines title 'run 7' 
+
+unset xtics
+unset ytics
+set tmargin 1
+set bmargin 0
+set ylabel ''
+plot DATA_DIR.'/series/l175_h2.85/smooth-175.txt' i 0 u 2:4 w lines title 'run 0' ,''i 8 u 2:4 w lines title 'run 8' 
+
+set xtics 
+set ytics
+set xlabel 'Normalised Time '
+set tmargin 1
+set ylabel 'Curvature (mm^{-1})'
+plot DATA_DIR.'/series/l175_h2.85/smooth-175.txt' i 0 u 2:4 w lines title 'run 0' , ''i 9 u 2:4 w lines title 'run 9' 
+set xtics
+unset ytics
+set xlabel 'Normalised Time '
+set tmargin 1
+set ylabel ''
+plot DATA_DIR.'/series/l175_h2.85/smooth-175.txt' i 0 u 2:4 w lines title 'run 0' ,''i 10 u 2:4 w lines title 'run 10' 
+unset multiplot
+
+
+
+
+
+

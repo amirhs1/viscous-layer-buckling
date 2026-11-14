@@ -1,0 +1,29 @@
+# Source: gnuplot/transition/plot-local-strain.txt (pre-refactor layout)
+
+# Input data folder: DATA_DIR if given (render.sh passes it), otherwise $MSC_DATA.
+if (!exists("DATA_DIR")) DATA_DIR = system('printf "%s" "$MSC_DATA"')
+if (DATA_DIR eq "") { exit error "MSC_DATA is not set: export MSC_DATA=/path/to/data (see Data availability in README.md)" }
+
+#!/usr/local/bin/gnuplot
+set terminal postscript eps colortext color "Courier, 10"
+set output 'images/06-local-strain.eps'
+#set logscale
+set grid
+stats DATA_DIR.'/series/transition/newtime-transition-velocity.txt' index 0 using 7 every ::0::10 prefix "eps0016"
+stats DATA_DIR.'/series/transition/newtime-transition-velocity.txt' index 0 using 7 every ::11::15 prefix "eps0012"
+stats DATA_DIR.'/series/transition/newtime-transition-velocity.txt' index 0 using 7 every ::16::27 prefix "eps0011"
+set xlabel 'Local Strain Rate: {/Symbol t}_{Je^{-}} D_{xx}(t_c)'
+set ylabel 'Normalised Transition Time'
+set title 'Tansition vs Local Strain Rate'
+set key off 
+#set key font "Courier, 10"
+set autoscale
+s = 0.414293 #s/mm Capillary-viscous velocity: mu/(gamma_+ + gamma_-)
+b =  2.767 #mm.s Buoyancy-viscous constant: \mu/rho_2 g 
+#Taylor critical strain rate - non-dimensionalised by buoyancy-viscous time.
+
+#set label 1 "D^{taylor}_{xx} = {1}/ {4*{/Symbol t}_{Ca}}" at 0.195 ,0.65 center rotate by -90 front
+set yrange [:1.05]
+plot DATA_DIR."/series/transition/newtime-transition-velocity.txt" u ((1/(4*s*eps0016_mean))*(b/eps0016_mean)):5 every ::0::10  w l dt 1 lc rgb 'red' , "" u ((($3)/($6-($3*$9*$5)))*(b/$7)):5  every ::0::4 lt 2 lc rgb 'red',"" u ((($3)/($6-($3*$9*$5)))*(b/$7)):5 every ::5::5 lt 7 lc rgb 'red',"" u ((($3)/($6-($3*$9*$5)))*(b/$7)):5 every ::6::6 lt 2 lc rgb 'red',"" u ((($3)/($6-($3*$9*$5)))*(b/$7)):5 every ::7::10 lt 7 lc rgb 'red', "" u ((1/(4*s*eps0012_mean))*(b/eps0012_mean)):5 every ::11::15  w l dt 1 lc rgb 'blue' , "" u ((($3)/($6-($3*$9*$5)))*(b/$7)):5 every ::11::12 lt 2 lc rgb 'blue',"" u ((($3)/($6-($3*$9*$5)))*(b/$7)):5 every ::13::15 lt 7 lc rgb 'blue', "" u ((1/(4*s*eps0011_mean))*(b/eps0011_mean)):5 every ::16::27  w l dt 1 lc rgb 'green' ,"" u ((($3)/($6-($3*$9*$5)))*(b/$7)):5 every ::21::22 lt 2 lc rgb 'green',"" u ((($3)/($6-($3*$9*$5)))*(b/$7)):5 every ::16::20 lt 7 lc rgb 'green',"" u ((($3)/($6-($3*$9*$5)))*(b/$7)):5 every ::23::27 lt 7 lc rgb 'green'
+
+

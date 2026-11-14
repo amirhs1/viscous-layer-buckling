@@ -1,0 +1,7 @@
+# Source: gnuplot/color.txt (pre-refactor layout)
+
+#!/usr/local/bin/gnuplot
+#set terminal postscript eps enhanced 
+set terminal postscript eps enhanced colortext color "courier"
+set output 'images/19-color-palette-helper.eps'
+test

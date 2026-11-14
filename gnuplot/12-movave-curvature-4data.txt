@@ -1,0 +1,21 @@
+# Source: gnuplot/L175-h2.85/4data-movave-cur-plot.txt (pre-refactor layout)
+
+# Input data folder: DATA_DIR if given (render.sh passes it), otherwise $MSC_DATA.
+if (!exists("DATA_DIR")) DATA_DIR = system('printf "%s" "$MSC_DATA"')
+if (DATA_DIR eq "") { exit error "MSC_DATA is not set: export MSC_DATA=/path/to/data (see Data availability in README.md)" }
+
+#!/usr/local/bin/gnuplot
+set terminal postscript eps colortext color
+set output 'images/12-movave-curvature-4data.eps'
+#set logscale
+set grid
+
+set xlabel 'Normalised Time '
+set ylabel 'Curvature (mm^{-1})'
+set title 'Curvature vs. Time in different Compression velocity with transition points'
+set key left
+plot  DATA_DIR."/series/l175_h2.85/D1394_11_15-T09_08-SmoothedData.txt" u 2:4 title "D1394-11-15-T09-08:V_c=90.901 mm.s^{-1}", DATA_DIR."/series/l175_h2.85/D1394_11_15-T12_03-SmoothedData.txt" u 2:4 title "D1394-11-15-T12-03: V_c=101.704 mm.s^{-1}", DATA_DIR."/series/l175_h2.85/D1394_11_15-T17_21-SmoothedData.txt" u 2:4 title "D1394-11-15-T17-21:V_c=114.964 mm.s^{-1}", DATA_DIR."/series/l175_h2.85/D1394_11_15-T19_49-SmoothedData.txt" u 2:4 title "D1394-11-15-T19-49: V_c=97.369 mm.s^{-1}"
+
+
+
+

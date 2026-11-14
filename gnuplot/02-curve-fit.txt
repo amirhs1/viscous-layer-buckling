@@ -1,0 +1,31 @@
+# Source: gnuplot/D1394_11_24-T19_19/fit-plot.txt (pre-refactor layout)
+
+# Input data folder: DATA_DIR if given (render.sh passes it), otherwise $MSC_DATA.
+if (!exists("DATA_DIR")) DATA_DIR = system('printf "%s" "$MSC_DATA"')
+if (DATA_DIR eq "") { exit error "MSC_DATA is not set: export MSC_DATA=/path/to/data (see Data availability in README.md)" }
+
+#!/usr/local/bin/gnuplot
+set terminal postscript eps colortext color "Times-Roman, 12"
+set output 'images/02-curve-fit.eps'
+set xrange [0:1.005]
+set format y "%.1f"
+
+stats DATA_DIR.'/series/D1394_11_24-T19_19/D1394_11_24-T19_19-SmoothedData.txt'  using 4 prefix "A"
+#f(x) = a*exp(c
+
+
+unset ylabel
+unset arrow
+unset key
+
+set grid
+set tics  font "Times-Roman, 10"
+set xlabel "Normalised Time"
+set ylabel 'K (mm^{-1})' offset 0.7,0
+
+plot DATA_DIR.'/series/D1394_11_24-T19_19/D1394_11_24-T19_19-SmoothedData.txt' u 2:4 , '' u 2:($4-A_mean)
+
+
+
+
+

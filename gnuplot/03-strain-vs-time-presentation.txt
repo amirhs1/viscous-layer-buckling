@@ -1,0 +1,69 @@
+# Source: gnuplot/transition_final_presentation/newtime-plot-strain-presentation.txt (pre-refactor layout)
+
+# Input data folder: DATA_DIR if given (render.sh passes it), otherwise $MSC_DATA.
+if (!exists("DATA_DIR")) DATA_DIR = system('printf "%s" "$MSC_DATA"')
+if (DATA_DIR eq "") { exit error "MSC_DATA is not set: export MSC_DATA=/path/to/data (see Data availability in README.md)" }
+
+#!/usr/local/bin/gnuplot
+set terminal postscript eps colortext color "Times-Roman, 14"
+set output 'images/03-strain-vs-time-presentation.eps'
+#set palette rgb
+set multiplot
+set xlabel font "Times-Roman, 18"
+set xlabel '{/Symbol t}_{Ca} D_0' 
+set ylabel font "Times-Roman, 20"
+set ylabel '{t_c}/{{/Symbol t}_{Ca}}'
+unset title #'Transition vs Strain Rate'
+set key opaque enhanced title "Filled symbols= No buckling" at 0.35, 4.75
+set yrange [0:]
+# ForestGreen(web):##228B22
+
+s = 0.414293 #s/mm Capillary-viscous velocity: mu/(gamma_+ + gamma_-)
+f(x) = a*x
+#fit f(x) DATA_DIR."/series/transition/L175-h2-data.txt" u (($3/$6)*(s*$7)):(($5*$9)/(s*$7)):((($3/$6)*(($13/$3)+(1/$6)))*(s*$7)):(0.016/(s*$7))	xyerrors via a
+set style fill pattern 7
+set grid
+#set label 1 "No Buckling" at 0.15 ,1.5 center rotate by -90 front
+set arrow from 0.4745,0 to 0.4745, 2 nohead lc rgb 'red'	dashtype '-..-'
+set label 1 "{{/Symbol t}_{Ca}D_c=0.474" at 0.4745, 2.2 center  front tc rgb 'red' 
+set zeroaxis lw 3
+set arrow from 0.3731,0 to 0.3731, 2 nohead lc rgb 'blue' dashtype '--'
+set label 2 "{{/Symbol t}_{Ca}D_c= 0.373" at 0.3731, 2.2 center  front tc rgb 'blue' 
+
+set arrow from 0.255,0 to 0.255, 2 nohead lc rgb '#228B22' dashtype '._._.'# ForestGreen(web):##228B22
+set label 3 "{{/Symbol t}_{Ca}D_c= 0.255" at 0.255, 2.2 center  front tc rgb '#228B22' # ForestGreen(web):##228B22
+
+#set label 4 "{t}/{{/Symbol t}_{Ca}}={({/Symbol t}_{Ca} D_0)}^{-1} - 4" at 0.255, 3.25 center  front tc rgb 'black'
+
+set arrow filled from  0.56 ,1.5 to 0.6, 1.5 lc rgb 'black'
+set label 9 "{{/Symbol e} increases" at  0.58 ,1.7 center  front tc rgb 'black' 
+
+set arrow from 0.25,0 to 0.250, 3 nohead lc rgb 'black' 
+
+set label 8 "{{/Symbol t}_{Ca}D_c^{taylor}= 0.25" at 0.255, 3.25 center  front tc rgb 'black' 
+
+
+set label 7 "No Buckling" at 0.15 ,1.5 center rotate by -90 front
+
+plot DATA_DIR."/series/transition_final_presentation/newtime-transition-velocity.txt" u (($3/$6)*(s*$7)):((1/(($3/$6)*(s*$7)))-4) smooth unique   with filledcurves x1  lc rgb 'gray' notitle, "" u (($3/$6)*(s*$7)):(($5*$9)/(s*$7)) every ::0::5 w lp pt 5 lc rgb 'red' notitle, "" u (($3/$6)*(s*$7)):(($5*$9)/(s*$7)) every ::6::10 w lp pt 4 lc rgb 'red' notitle, "" u (($3/$6)*(s*$7)):(($5*$9)/(s*$7)) every ::11::12 w lp pt 7 lc rgb 'blue' notitle ,"" u (($3/$6)*(s*$7)):(($5*$9)/(s*$7)) every ::13::15 w lp pt 6 lc rgb 'blue' notitle,"" u (($3/$6)*(s*$7)):(($5*$9)/(s*$7)) every ::16::17 w lp pt 9 lc rgb '#228B22' notitle, "" u (($3/$6)*(s*$7)):(($5*$9)/(s*$7)) every ::18::27  w lp pt 8 lc rgb '#228B22' notitle
+
+set origin 0.6,0.6
+set size 0.32,0.32
+clear
+unset grid
+unset arrow
+unset label
+set key off
+
+set rmargin 0
+set tmargin 0
+#set grid 
+set xrange [0.010:0.017]
+set yrange [0.240:0.500]
+set xtics 0.002
+set xlabel font "Times-Roman, 16"
+set xlabel '{/Symbol e}'
+set ylabel font "Times-Roman, 16"
+set ylabel '{/Symbol t}_{Ca} D_0'
+plot DATA_DIR."/series/transition_final_presentation/critical-strain-data.txt" u 2:3 every ::0::0 w lp pt 8 lc rgb '#228B22','' u 2:3 every ::1::1 w lp pt 6 lc rgb 'blue','' u 2:3 every ::2::2 w lp pt 4 lc rgb 'red','' u 2:3  w l dt 4 lc rgb 'black'
+unset multiplot

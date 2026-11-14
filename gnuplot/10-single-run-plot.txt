@@ -1,0 +1,20 @@
+# Source: gnuplot/L175-h2.85/single-plot.txt (pre-refactor layout)
+
+# Input data folder: DATA_DIR if given (render.sh passes it), otherwise $MSC_DATA.
+if (!exists("DATA_DIR")) DATA_DIR = system('printf "%s" "$MSC_DATA"')
+if (DATA_DIR eq "") { exit error "MSC_DATA is not set: export MSC_DATA=/path/to/data (see Data availability in README.md)" }
+
+#!/usr/local/bin/gnuplot
+set terminal postscript eps colortext color
+set output 'images/10-single-run-plot.eps'
+set xlabel 'Normalized frame number'
+set ylabel 'Mean curvature (mm^{-1})'
+set logscale 
+#stats DATA_DIR.'/series/l175_h2.85/smooth-175.txt' index 0 using 4 prefix "A0"
+set title 'Mean curvature in various experiment'
+plot DATA_DIR."/series/l175_h2.85/smooth-175.txt" index 0 using 2:7 title 'run 0 - B-spline', "" index 0 u 2:4 title 'run 0 - moving avg.', "" i 9 u 2:4 title 'run 9 - moving avg.', "" i 9 u 2:7 title 'run 9 - B-spline'
+
+
+
+
+

@@ -1,0 +1,23 @@
+# Source: gnuplot/L175-h2.85/movave-cur-for.txt (pre-refactor layout)
+
+# Input data folder: DATA_DIR if given (render.sh passes it), otherwise $MSC_DATA.
+if (!exists("DATA_DIR")) DATA_DIR = system('printf "%s" "$MSC_DATA"')
+if (DATA_DIR eq "") { exit error "MSC_DATA is not set: export MSC_DATA=/path/to/data (see Data availability in README.md)" }
+
+#!/usr/local/bin/gnuplot
+set terminal postscript eps colortext color
+set output 'images/13-movave-curvature-forloop.eps'
+set key off
+set key bmargin 
+set xlabel 'Normalised Time '
+set ylabel 'Curvature (mm^{-1})'
+set title 'Curvature vs. Time in different Compression velocity with transition points'
+
+plot for [IDX=0:10] DATA_DIR.'/series/l175_h2.85/smooth-175.txt' i IDX u 2:4 w lines title columnheader(4) , DATA_DIR."/series/l175_h2.85/smooth-175.txt" i 0 u 2:4 every ::363::363  notitle , "" i 1 u 2:4 every ::255::255  notitle , "" i 2 u 2:4 every ::188::188  notitle, "" i 3 u 2:4 every ::161::161  notitle, "" i 4 u 2:4 every ::129::129  notitle, "" i 5 u 2:4 every ::109::109  notitle, "" i 6 u 2:4 every ::108::108  notitle, "" i 7 u 2:4 every ::78::78  notitle, "" i 8 u 2:4 every ::18::18  notitle, "" i 9 u 2:4 every ::63::63  notitle, "" i 10 u 2:4 every ::79::79   lc rgbcolor 'black'  notitle
+
+
+
+
+
+
+

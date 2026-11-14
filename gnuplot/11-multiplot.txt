@@ -1,0 +1,34 @@
+# Source: gnuplot/L175-h2.85/multiplot.txt (pre-refactor layout)
+
+# Input data folder: DATA_DIR if given (render.sh passes it), otherwise $MSC_DATA.
+if (!exists("DATA_DIR")) DATA_DIR = system('printf "%s" "$MSC_DATA"')
+if (DATA_DIR eq "") { exit error "MSC_DATA is not set: export MSC_DATA=/path/to/data (see Data availability in README.md)" }
+
+#!/usr/local/bin/gnuplot
+set terminal postscript enhanced colortext color landscape font "Times-Roman,12"
+set output 'images/11-multiplot.ps'
+set multiplot layout 2,1
+set grid
+set key off
+set bmargin 0
+set xlabel ''
+set xtics nooffset
+
+unset xlabel
+set ylabel 'Curvature (mm^{-1})'
+
+set ytics 0.2,0.2 # Suppress the tic label for y=0 (start,step)
+
+plot DATA_DIR."/series/l175_h2.85/smooth-175.txt" i 0 u 2:4 title "D1394-11-13-T09-57:V_c=16.888 mm.s^{-1}", "" i 1 u 2:4 title "D1394-11-13-T16-55:V_c=27.149 mm.s^{-1}" , "" i 2 u 2:4 title "D1394-11-13-T18-59:V_c=19.138 mm.s^{-1}", "" i 3 u 2:4 title "D1394-11-14-T08-55:V_c=46.071 mm.s^{-1}", "" i 4 u 2:4 title "D1394-11-14-T12_43:V_c=56.036 mm.s^{-1}", "" i 5 u 2:4 title "D1394-11-14-T17-03:V_c=38.164 mm.s^{-1}", "" i 6 u 2:4 title "D1394-11-14-T18-21: V_c=32.693 mm.s^{-1}", "" i 7 u 2:4 title "D1394-11-15-T09-08:V_c=90.901 mm.s^{-1}", "" i 8 u 2:4 title "D1394-11-15-T12-03: V_c=101.704 mm.s^{-1}", "" i 9 u 2:4 title "D1394-11-15-T17-21:V_c=114.964 mm.s^{-1}", "" i 10 u 2:4 title "D1394-11-15-T19-49: V_c=97.369 mm.s^{-1}",DATA_DIR."/series/l175_h2.85/smooth-175.txt" i 0 u 2:4 every ::363::363  notitle , "" i 1 u 2:4 every ::255::255  notitle , "" i 2 u 2:4 every ::188::188  notitle, "" i 3 u 2:4 every ::161::161  notitle, "" i 4 u 2:4 every ::129::129  notitle, "" i 5 u 2:4 every ::109::109  notitle, "" i 6 u 2:4 every ::108::108  notitle, "" i 7 u 2:4 every ::78::78  notitle, "" i 8 u 2:4 every ::18::18  notitle, "" i 9 u 2:4 every ::63::63  notitle, "" i 10 u 2:4 every ::79::79  notitle
+
+
+set tmargin 0
+set xtics
+set key off
+set xlabel 'Normalized time'
+set ylabel 'Amplitude (mm)'
+
+set ytics 0.5,0.5,6 # Suppress tic label for y=1 (start,step,stop)
+
+plot DATA_DIR."/series/l175_h2.85/smooth-175.txt" i 0 u 2:3 title "D1394-11-13-T09-57:V_c=16.888 mm.s^{-1}", "" i 1 u 2:3 title "D1394-11-13-T16-55:V_c=27.149 mm.s^{-1}" , "" i 2 u 2:3 title "D1394-11-13-T18-59:V_c=19.138 mm.s^{-1}", "" i 3 u 2:3 title "D1394-11-14-T08-55:V_c=46.071 mm.s^{-1}", "" i 4 u 2:3 title "D1394-11-14-T12_43:V_c=56.036 mm.s^{-1}", "" i 5 u 2:3 title "D1394-11-14-T17-03:V_c=38.164 mm.s^{-1}", "" i 6 u 2:3 title "D1394-11-14-T18-21: V_c=32.693 mm.s^{-1}", "" i 7 u 2:3 title "D1394-11-15-T09-08:V_c=90.901 mm.s^{-1}", "" i 8 u 2:3 title "D1394-11-15-T12-03: V_c=101.704 mm.s^{-1}", "" i 9 u 2:3 title "D1394-11-15-T17-21:V_c=114.964 mm.s^{-1}", "" i 10 u 2:3 title "D1394-11-15-T19-49: V_c=97.369 mm.s^{-1}",DATA_DIR."/series/l175_h2.85/smooth-175.txt" i 0 u 2:3 every ::363::363  notitle , "" i 1 u 2:3 every ::255::255  notitle , "" i 2 u 2:3 every ::188::188  notitle, "" i 3 u 2:3 every ::161::161  notitle, "" i 4 u 2:3 every ::129::129  notitle, "" i 5 u 2:3 every ::109::109  notitle, "" i 6 u 2:3 every ::108::108  notitle, "" i 7 u 2:3 every ::78::78  notitle, "" i 8 u 2:3 every ::18::18  notitle, "" i 9 u 2:3 every ::63::63  notitle, "" i 10 u 2:3 every ::79::79   w p lc rgb 'black' notitle
+unset multiplot

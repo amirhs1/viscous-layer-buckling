@@ -1,0 +1,55 @@
+# Source: gnuplot/D1394_11_24-T19_19/plot.txt (pre-refactor layout)
+
+# Input data folder: DATA_DIR if given (render.sh passes it), otherwise $MSC_DATA.
+if (!exists("DATA_DIR")) DATA_DIR = system('printf "%s" "$MSC_DATA"')
+if (DATA_DIR eq "") { exit error "MSC_DATA is not set: export MSC_DATA=/path/to/data (see Data availability in README.md)" }
+
+#!/usr/local/bin/gnuplot
+set terminal postscript eps colortext color "Times-Roman, 12"
+set output 'images/01-run-diagnostics-multiplot.eps'
+set xrange [0:1.005]
+set format y "%.1f"
+
+set multiplot layout 3,1
+
+unset key
+unset xlabel 
+set grid
+set tics  font "Times-Roman, 10"
+set ylabel 'A (mm)' offset 2,0
+
+set arrow filled from 0.322581, 4 rto 0, -1.2 lt 7 lw 2 front
+set label 1 "t_c" at 0.322581 , 4.5 center font "Times-Roman, 12"
+plot DATA_DIR.'/series/D1394_11_24-T19_19/D1394_11_24-T19_19-SmoothedData.txt' u 2:3 lt 8 lc rgbcolor 'black', '' u 2:3 every ::20::20 notitle lt 7 lc rgbcolor "red"
+
+unset xlabel
+unset ylabel
+unset arrow
+unset key
+
+set grid
+set tics  font "Times-Roman, 10"
+set ylabel 'K (mm^{-1})' offset 0.7,0
+
+set arrow filled from 0.322581, 1.8 rto 0, -0.3 lt 7 lw 2 front
+set label 1 "t_c" at 0.322581 , 1.9 center font "Times-Roman, 12"
+plot DATA_DIR.'/series/D1394_11_24-T19_19/D1394_11_24-T19_19-SmoothedData.txt' u 2:4 lt 8 lc rgbcolor 'black', '' u 2:4 every ::20::20 notitle lt 7 lc rgbcolor "red"
+
+unset arrow
+unset ylabel
+unset key
+
+set grid
+set tics  font "Times-Roman, 10"
+#set yrange [-:]
+set xlabel offset 0,1
+set xlabel '@^{\176}t'
+set ylabel '{/Symbol s} (mm^{2})' offset 0.7,0
+
+set arrow filled from 0.322581, 2 rto 0, -1 lt 7 lw 2 front
+set label 1 "t_c" at 0.322581 , 2.7 center font "Times-Roman, 12"
+plot DATA_DIR.'/series/D1394_11_24-T19_19/D1394_11_24-T19_19-SmoothedData.txt' u 2:9 lt 8 lc rgbcolor 'black', '' u 2:9 every ::20::20 notitle lt 7 lc rgbcolor "red"
+unset multiplot
+
+
+

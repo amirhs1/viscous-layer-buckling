@@ -1,0 +1,28 @@
+# Source: gnuplot/transition/plot-period-variance.txt (pre-refactor layout)
+
+# Input data folder: DATA_DIR if given (render.sh passes it), otherwise $MSC_DATA.
+if (!exists("DATA_DIR")) DATA_DIR = system('printf "%s" "$MSC_DATA"')
+if (DATA_DIR eq "") { exit error "MSC_DATA is not set: export MSC_DATA=/path/to/data (see Data availability in README.md)" }
+
+#!/usr/local/bin/gnuplot
+set terminal postscript eps colortext color "Courier, 10"
+set output 'images/07-period-variance.eps'
+
+set xlabel '{/Symbol t}_{Ca} D_0'
+set ylabel '{{/Symbol t}_{Ca}}/{/Symbol Q}'
+set title 'Frequency vs Strain Rate'
+set key off 
+
+
+
+s = 0.414293 #s/mm Capillary-viscous velocity: mu/(gamma_+ + gamma_-)
+
+#set logscale
+f(x)= a*x**n+c
+#fit f(x) DATA_DIR."/series/transition/period-data.txt"  u 3:4 via  a,n,c
+
+set grid
+plot DATA_DIR."/series/transition/newtime-transition-velocity.txt"  u (($3/$6)*(s*$7)):((s*$7)/($12))  every ::0::4 lt 2 lc rgb 'red',"" u (($3/$6)*(s*$7)):((s*$7)/($12)) every ::6::6 lt 2 lc rgb 'red', "" u (($3/$6)*(s*$7)):((s*$7)/($12)) every ::11::12 lt 2 lc rgb 'blue', "" u (($3/$6)*(s*$7)):((s*$7)/($12)) every ::21::22 lt 2 lc rgb 'green'
+#,f(x) 
+
+

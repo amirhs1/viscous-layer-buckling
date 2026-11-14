@@ -1,0 +1,31 @@
+#!/usr/local/bin/gnuplot
+# Run from this folder: gnuplot plot.txt
+# Input data folder: DATA_DIR if given (render.sh passes it), otherwise $MSC_DATA.
+if (!exists("DATA_DIR")) DATA_DIR = system('printf "%s" "$MSC_DATA"')
+if (DATA_DIR eq "") { exit error "MSC_DATA is not set: export MSC_DATA=/path/to/data (see Data availability in README.md)" }
+system "mkdir -p ../images"
+set terminal postscript eps enhanced "Times Roman,16"
+#set terminal postscript eps enhanced colortext color "Times Roman,12"
+set output '../images/velocity-frequency.eps'
+set key  left top spacing 3 # noautotitles
+
+set xlabel 'f (Hz)'
+set ylabel 'V_{c} (mm/s)'
+
+set grid back
+
+set fit errorvariables
+G(x) = a*x
+fit G(x) DATA_DIR.'/regression/Velocity-frequency.txt' using 1:3:2:4 xyerrors via a
+
+plot DATA_DIR.'/regression/Velocity-frequency.txt' using 1:3 with p pt 4 title 'Data', G(x)  w l lt -1 lw 4 title 'V^{(c)}(f)'
+
+ 
+set output '../images/velocity-frequency-residuals.eps'
+unset key 
+set xzeroaxis lt -1
+show xzeroaxis
+set xlabel 'f (Hz)'
+set ylabel 'R_{V_{c}} (mm/s)'
+set grid back
+plot DATA_DIR.'/regression/Velocity-frequency.txt' u 1:($3 - (a*($1))) w p pt 6
