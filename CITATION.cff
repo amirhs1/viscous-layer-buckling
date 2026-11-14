@@ -8,6 +8,8 @@ abstract: >-
   of the layer, and gnuplot scripts reproduce the thesis figures, including
   the thicken-to-buckle transition.
 type: software
+version: "1.0.0"
+date-released: 2026-11-14
 authors:
   - given-names: Amir
     family-names: Sadeghi
