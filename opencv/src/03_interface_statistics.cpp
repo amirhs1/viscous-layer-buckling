@@ -75,6 +75,9 @@ int main (int argc, char* argv[]){
     
 
     VideoCapture cap {input_address};
+    // Keep the thresholded frames 8-bit single-channel, as OpenCV 2/3 returned them;
+    // since OpenCV 4 an image sequence is converted to BGR, which findContours rejects.
+    cap.set (CAP_PROP_CONVERT_RGB, false);
     if (!cap.isOpened())
     {
         cerr << "Failed to open Image Sequence!\n" << endl;
@@ -166,7 +169,7 @@ int main (int argc, char* argv[]){
     while (!frame.empty()) {
         ++frameindex;
         //Find Contour with maximum area in each frame:
-        findContours(frame, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);//OpenCV functions destroy input frame.
+        findContours(frame, contours, hierarchy, RETR_EXTERNAL, CHAIN_APPROX_NONE);//OpenCV functions destroy input frame.
         int max_idx = 0, max_size = 0;
         for(int idx = 0; idx < contours.size(); ++idx )
         {
@@ -205,7 +208,7 @@ int main (int argc, char* argv[]){
         //Saving maximum-area contour:
         Scalar color( rand()&255, rand()&255, rand()&255 );//Defining color for showing maximum-area contour
         Mat dst = Mat::zeros(frame.rows, frame.cols, CV_8UC3);//Define new matrice (frame)
-        drawContours( dst, contours, max_idx, color, CV_FILLED, 8, hierarchy );//Draw maximum-area contour in new frame
+        drawContours( dst, contours, max_idx, color, FILLED, 8, hierarchy );//Draw maximum-area contour in new frame
         
         //Drawing lowest boundary of maximum-area contour in choosen frame:
         // below dst is choosen for drawing polyline, you can change it to frame or original.
