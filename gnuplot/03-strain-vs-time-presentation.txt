@@ -1,10 +1,7 @@
-# Source: gnuplot/transition_final_presentation/newtime-plot-strain-presentation.txt (pre-refactor layout)
-
 # Input data folder: DATA_DIR if given (render.sh passes it), otherwise $MSC_DATA.
 if (!exists("DATA_DIR")) DATA_DIR = system('printf "%s" "$MSC_DATA"')
 if (DATA_DIR eq "") { exit error "MSC_DATA is not set: export MSC_DATA=/path/to/data (see Data availability in README.md)" }
 
-#!/usr/local/bin/gnuplot
 set terminal postscript eps colortext color "Times-Roman, 14"
 set output 'images/03-strain-vs-time-presentation.eps'
 #set palette rgb

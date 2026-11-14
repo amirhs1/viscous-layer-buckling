@@ -1,10 +1,7 @@
-# Source: gnuplot/L175-h2.85/4data-movave-cur-plot.txt (pre-refactor layout)
-
 # Input data folder: DATA_DIR if given (render.sh passes it), otherwise $MSC_DATA.
 if (!exists("DATA_DIR")) DATA_DIR = system('printf "%s" "$MSC_DATA"')
 if (DATA_DIR eq "") { exit error "MSC_DATA is not set: export MSC_DATA=/path/to/data (see Data availability in README.md)" }
 
-#!/usr/local/bin/gnuplot
 set terminal postscript eps colortext color
 set output 'images/12-movave-curvature-4data.eps'
 #set logscale
