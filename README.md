@@ -47,8 +47,7 @@ data (the 21 in `gnuplot/`, the two in `gnuplot/velocity_frequency/` and the two
 The input data are not included in this repository. They are the processed results of the
 experiments: the lab data sheet for all 70 runs, the batch inputs, ImageJ length logs,
 per-run linear-regression tables, and the smoothed series and transition tables behind the
-thesis figures (about 4 MB of text and two small images). The raw videos and image sequences
-were not kept.
+thesis figures (about 4 MB of text and two small images).
 
 The data are available from the author on reasonable request. To ask for them, open an issue
 in this repository and say what you intend to use them for. Shared data are released under
@@ -82,7 +81,7 @@ to `gnuplot/images/`, `shell/work/` or the CMake build folder, all ignored by gi
 
 ## Status
 
-This is archival research code from 2015–2016, published as it was used. The raw videos are not included.
+This is archival research code from 2015–2016, published as it was used.
 
 ## Licence
 
