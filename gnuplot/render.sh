@@ -22,7 +22,7 @@ declare -a FILTERS=()
 for arg in "$@"; do
   case "$arg" in
     --png)   WANT_PNG=1 ;;
-    --clean) rm -rf "$OUT_DIR" fit.log; echo "removed $OUT_DIR/ and fit.log"; exit 0 ;;
+    --clean) rm -rf "$OUT_DIR"; echo "removed $OUT_DIR/"; exit 0 ;;
     -h|--help) sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     -*) echo "unknown option: $arg" >&2; exit 2 ;;
     *)  FILTERS+=("$arg") ;;
