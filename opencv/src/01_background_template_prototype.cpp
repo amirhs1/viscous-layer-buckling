@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include <iostream>
 #include <string>
 #include <opencv2/videoio.hpp>
@@ -14,6 +15,12 @@
 using namespace std;
 using namespace cv;
 
+// Preview windows are shown unless MSC_NO_DISPLAY is set to a non-empty value.
+static bool show_windows () {
+    const char *value = getenv ("MSC_NO_DISPLAY");
+    return !(value && *value);
+}
+
 int main (int argc, char* argv[]) {
   if (argc < 2) {
     cerr << "Usage: background-template-prototype <video-or-image-sequence>" << endl;
@@ -25,10 +32,9 @@ int main (int argc, char* argv[]) {
   cap >> frame;
   cout << frame.size() << endl;
   bool first{true};
+  const bool show = show_windows ();
   int initial_width, initial_height;
-  Mat initial, previous, diff, diff_resized, fg;
-  Ptr<BackgroundSubtractorMOG2> bgsubtractor=createBackgroundSubtractorMOG2();
-  bgsubtractor->setVarThreshold(10);
+  Mat initial, previous, diff;
 
   while (!frame.empty()) {
     Mat pattern;
@@ -54,10 +60,10 @@ int main (int argc, char* argv[]) {
       resize (diff, diff, current);
       cvtColor (diff, diff, COLOR_BGR2GRAY);
       threshold (diff, diff, 0, 255, THRESH_TRIANGLE);
-      imshow ("diff", diff);
+      if (show) imshow ("diff", diff);
     }
-    imshow ("", cropped);
-    waitKey (30);
+    if (show) imshow ("", cropped);
+    if (show) waitKey (30);
     cap >> frame;
   }
   return 0;

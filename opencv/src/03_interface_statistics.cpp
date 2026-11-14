@@ -34,6 +34,12 @@ void FFT (double *, int, int);
 void SmoothingCurvature(size_t, gsl_vector *, gsl_vector *, ofstream&, ofstream& , ofstream&, int, gsl_vector *);
 void SmoothingAmplitude(size_t, gsl_vector *, gsl_vector *, ofstream&, int, gsl_vector *);
 
+// Preview windows are shown unless MSC_NO_DISPLAY is set to a non-empty value.
+static bool show_windows () {
+    const char *value = getenv ("MSC_NO_DISPLAY");
+    return !(value && *value);
+}
+
 int main (int argc, char* argv[]){
     if (argc < 3) {
         cerr << "Usage: interface-statistics <experiment_folder> <experiment_name>" << endl;
@@ -103,7 +109,7 @@ int main (int argc, char* argv[]){
     input_dummy.append("-FrameStatistics.txt");
     ofstream write_statis (input_dummy);
     write_statis << "#(1):Frame number" << "\t" << "(2):Normalized Frame Number" << "\t" << "(3):Maximum y (mm)" << "\t";
-    write_statis << "(4):Minimum y (mm)" << "\t" << "(5):Abs(Max-Min) (mm)" << "\t" << "(6): Frame Variance(mm^2)\t"  << "(7):Frame Mean Curvature(1/mm)\t"  << "(8):Frame Max FFT frequency"<< endl;
+    write_statis << "(4):Minimum y (mm)" << "\t" << "(5):Abs(Max-Min) (mm)" << "\t" << "(6): Frame Variance(mm^2)\t"  << "(7):Frame Mean Curvature(1/mm)\t"  << "(8):Frame Max FFT frequency"<< '\n';
     
     input_dummy = experiment_folder;
     input_dummy.append("/");
@@ -111,7 +117,7 @@ int main (int argc, char* argv[]){
     input_dummy.append("-SmoothedData.txt");
     ofstream write_smooth_curv (input_dummy);
     write_smooth_curv << "#(1):Frame number" << "\t" << "(2):Normalized Frame Number\t"  << "(3):Frame Mean Curvature(1/mm) - Moving average method\t";
-    write_smooth_curv << "(4):Frame Mean Curvature(1/mm) - Spline method\t" << "(5):Smooth Amplitude (mm) - Moving average method\t" << "(6):Smooth Amplitude (mm) - Spline method" << endl;
+    write_smooth_curv << "(4):Frame Mean Curvature(1/mm) - Spline method\t" << "(5):Smooth Amplitude (mm) - Moving average method\t" << "(6):Smooth Amplitude (mm) - Spline method" << '\n';
     
     input_dummy = experiment_folder;
     input_dummy.append("/");
@@ -142,8 +148,8 @@ int main (int argc, char* argv[]){
     input_dummy.append(experiment_name);
     input_dummy.append("-Splined_Data_Second_Derivative.txt");
     ofstream write_sec_deriv (input_dummy);
-    write_sec_deriv << "# Numbers of second derivative points are total frame - 2." << endl;
-    write_sec_deriv << "#(1):Frame number\t" << "(2):Normalized frame number\t" << "(3):Second Derivative of Mean Curvature(1/mm^3)" << endl;
+    write_sec_deriv << "# Numbers of second derivative points are total frame - 2." << '\n';
+    write_sec_deriv << "#(1):Frame number\t" << "(2):Normalized frame number\t" << "(3):Second Derivative of Mean Curvature(1/mm^3)" << '\n';
 
     // Inputs:
     int total_frames = cap.get(CAP_PROP_FRAME_COUNT);
@@ -166,10 +172,19 @@ int main (int argc, char* argv[]){
     gsl_vector *frame_amplitude;
     frame_amplitude = gsl_vector_alloc(spline_size);
     
+    const bool show = show_windows ();
     while (!frame.empty()) {
         ++frameindex;
-        //Find Contour with maximum area in each frame:
-        findContours(frame, contours, hierarchy, RETR_EXTERNAL, CHAIN_APPROX_NONE);//OpenCV functions destroy input frame.
+        if (original.empty()) {
+            cerr << "error: fewer original (-3-Resized) frames than thresholded ones, at frame " << frameindex << endl;
+            return 1;
+        }
+        //Find the contour with the most points in each frame:
+        findContours(frame, contours, hierarchy, RETR_EXTERNAL, CHAIN_APPROX_NONE);
+        if (contours.empty()) {
+            cerr << "error: no contour in thresholded frame " << frameindex << endl;
+            return 1;
+        }
         int max_idx = 0, max_size = 0;
         for(int idx = 0; idx < contours.size(); ++idx )
         {
@@ -179,7 +194,7 @@ int main (int argc, char* argv[]){
             }
         }
         
-        //Find lowest boundary of maximum-area contour:
+        //Find the lowest boundary of that contour:
         vector<int> curve (frame.cols, -1);
         vector<int> multiplicity (frame.cols, 0);
         for (auto point : contours[max_idx])    {
@@ -193,16 +208,13 @@ int main (int argc, char* argv[]){
         
         
         
-        //Saving maximum-area contour:
-        Scalar color( rand()&255, rand()&255, rand()&255 );//Defining color for showing maximum-area contour
-        Mat dst = Mat::zeros(frame.rows, frame.cols, CV_8UC3);//Define new matrice (frame)
-        drawContours( dst, contours, max_idx, color, FILLED, 8, hierarchy );//Draw maximum-area contour in new frame
         
-        //Drawing lowest boundary of maximum-area contour in choosen frame:
-        // below dst is choosen for drawing polyline, you can change it to frame or original.
+        //Draw that boundary on the original frame:
         polylines (original, curves, false, Scalar::all(255));//
-        imshow (experiment_name +" "+to_string(frameindex)+"/"+to_string(total_frames), original);
-        waitKey (150);  //Wait time in miliseconds
+        if (show) {
+            imshow (experiment_name +" "+to_string(frameindex)+"/"+to_string(total_frames), original);
+            waitKey (150);  //Wait time in milliseconds
+        }
         
         //Calculating curvature and variance:
         int data_size = curves[0].size();
@@ -221,6 +233,7 @@ int main (int argc, char* argv[]){
         
         frame_variance = gsl_stats_variance(y_data,1,data_size);
         frame_curvature =  FrameMeanCurvature(y_data,data_size,second_derivative);
+        delete []second_derivative;
         
         write_statis << frameindex << "\t" << (float)frameindex/spline_size << "\t" << y_max << "\t" << y_min << "\t" << gsl_vector_get(frame_amplitude,frameindex-1) << "\t" << frame_variance << "\t" << frame_curvature << "\t";
         
@@ -232,18 +245,18 @@ int main (int argc, char* argv[]){
         double *fft_data = new double[data_size];// gsl FTT functions destroy input data.
         for (int j = 0; j < data_size; ++j) fft_data[j] = y_data[j]- y_mean;
         FFT(fft_data,data_size,stride);
-        write_fft << "#frame number: " << frameindex << endl;
-        write_fft << "#(1):Pixel Number" << "\t" <<"(2):x component (mm)" << "\t" << "(3):y component (mm)" << "\t" << "(4):FFT of y (1/mm)" << endl;
+        write_fft << "#frame number: " << frameindex << '\n';
+        write_fft << "#(1):Pixel Number" << "\t" <<"(2):x component (mm)" << "\t" << "(3):y component (mm)" << "\t" << "(4):FFT of y (1/mm)" << '\n';
         for (int j=0; j< data_size; j++) write_fft << j+1 << "\t" << curves[0][j].x*mm_pixel << "\t" << y_data[j]*mm_pixel << "\t" << fft_data[j] << endl;
-        write_fft << endl << endl;
+        write_fft << '\n' << '\n';
         double frame_fft_max;
         frame_fft_max = gsl_stats_max (fft_data, stride, data_size);
-        write_statis << frame_fft_max << endl;
+        write_statis << frame_fft_max << '\n';
         delete []fft_data;
         
         
         //Writing images:
-        sprintf (filename, path, frameindex);
+        snprintf (filename, sizeof filename, path, frameindex);
         imwrite (filename, original);
         delete []y_data;
         
@@ -282,7 +295,7 @@ int main (int argc, char* argv[]){
     
     for(int i = 0; i < spline_size; ++i){
         write_smooth_curv << i+1 << "\t" <<  (double) i / spline_size << "\t" << gsl_vector_get (mov_average, i) << "\t" << gsl_vector_get (spline_smooth, i) << "\t";
-        write_smooth_curv << gsl_vector_get (smooth_amplitude, i) << "\t" << gsl_vector_get (spline_amplitude, i) << endl;
+        write_smooth_curv << gsl_vector_get (smooth_amplitude, i) << "\t" << gsl_vector_get (spline_amplitude, i) << '\n';
     }
     
     gsl_vector_free(spline_x);
@@ -307,7 +320,6 @@ double FrameMeanCurvature(double *y_data,int data_size,double * second_derivativ
     }
     mean_curvature = gsl_stats_mean(second_derivative,1,(data_size-2));
     return mean_curvature;
-    delete []second_derivative;
 }
 
 
@@ -386,8 +398,8 @@ void SmoothingCurvature(size_t spline_size, gsl_vector *spline_x, gsl_vector *sp
     multifit_dof = spline_size - spline_coeffs;
     multifit_tss = gsl_stats_tss(spline_y->data, 1, spline_y->size);
     multifit_Rsq = 1.0 - multifit_chisq / multifit_tss;
-    write_spline_fitpara << "Standard error = " << stderr << endl << "chisq/dof = " <<  multifit_chisq / multifit_dof << endl;//stderr is a variable from Error Handling header file.
-    write_spline_fitpara << "Rsq = "  << multifit_Rsq << endl;
+    write_spline_fitpara << "Standard error = " << stderr << '\n' << "chisq/dof = " <<  multifit_chisq / multifit_dof << '\n';//stderr is a variable from Error Handling header file.
+    write_spline_fitpara << "Rsq = "  << multifit_Rsq << '\n';
     write_spline_fitpara.close();
     
     
@@ -412,14 +424,14 @@ void SmoothingCurvature(size_t spline_size, gsl_vector *spline_x, gsl_vector *sp
     for (int j = 1; j < spline_size-1; ++j){
         dummy = gsl_vector_get(smoothed_curvature,j-1) - 2 * gsl_vector_get(smoothed_curvature,j) + gsl_vector_get(smoothed_curvature,j+1);
         curv_sec_deri[j-1] = dummy;
-        write_sec_deriv << j << (double) j/(spline_size-1) << curv_sec_deri[j-1] << endl;
+        write_sec_deriv << j << (double) j/(spline_size-1) << curv_sec_deri[j-1] << '\n';
     }
     write_sec_deriv.close();
     
     size_t max_index;
     max_index = gsl_stats_max_index (curv_sec_deri, 1,spline_size-2);
     cout << "Index of Maximum value of second derivative (Based on array index rule):(transition frame number in curvature data = this number + 2)\t" << max_index << endl;
-    write_transition << "(1):Index of Maximum value of second derivative (Based on array index rule)\t" << "(2):Coresponding frame number" << endl;
+    write_transition << "(1):Index of Maximum value of second derivative (Based on array index rule)\t" << "(2):Coresponding frame number" << '\n';
     write_transition << max_index << max_index+2;//
     write_transition.close();
     
@@ -480,8 +492,8 @@ void SmoothingAmplitude(size_t spline_size, gsl_vector *spline_x, gsl_vector *fr
     multifit_dof = spline_size - spline_coeffs;
     multifit_tss = gsl_stats_tss(frame_amplitude->data, 1, frame_amplitude->size);
     multifit_Rsq = 1.0 - multifit_chisq / multifit_tss;
-    write_amplitude_fitpara << "Standard error = " << stderr << endl << "chisq/dof = " <<  multifit_chisq / multifit_dof << endl;//stderr is a variable from Error Handling header file.
-    write_amplitude_fitpara << "Rsq = "  << multifit_Rsq << endl;
+    write_amplitude_fitpara << "Standard error = " << stderr << '\n' << "chisq/dof = " <<  multifit_chisq / multifit_dof << '\n';//stderr is a variable from Error Handling header file.
+    write_amplitude_fitpara << "Rsq = "  << multifit_Rsq << '\n';
     write_amplitude_fitpara.close();
     
     // output the smoothed curve

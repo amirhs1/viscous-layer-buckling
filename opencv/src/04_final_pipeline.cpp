@@ -33,9 +33,15 @@ double MovingAverage(gsl_vector *, int, int);
 void BSplineCurvature(double, size_t, gsl_vector *, gsl_vector *, ofstream&, ofstream& , ofstream&, int, gsl_vector *, gsl_vector *, double *, double *, double *);
 void BSplineAmplitude(size_t, gsl_vector *, gsl_vector *, ofstream&, int, gsl_vector *, gsl_vector *);
 
+// Preview windows are shown unless MSC_NO_DISPLAY is set to a non-empty value.
+static bool show_windows () {
+    const char *value = getenv ("MSC_NO_DISPLAY");
+    return !(value && *value);
+}
+
 int main (int argc, char* argv[]){
-    if (argc < 4) {
-        cerr << "Usage: final-pipeline <experiment_folder> <experiment_name> <mm_per_pixel>" << endl;
+    if (argc < 5) {
+        cerr << "Usage: final-pipeline <experiment_folder> <experiment_name> <mm_per_pixel> <period_switch: 0 or 1>" << endl;
         return 1;
     }
 
@@ -50,7 +56,7 @@ int main (int argc, char* argv[]){
     input_dummy.append("-Inputs.txt");
     ofstream write_inputs (input_dummy);
     
-    write_inputs << experiment_folder << endl << experiment_name << endl;
+    write_inputs << experiment_folder << '\n' << experiment_name << '\n';
     
     string input_address = experiment_folder;
     input_address.append("/");
@@ -59,7 +65,7 @@ int main (int argc, char* argv[]){
     input_address.append(experiment_name);
     input_address.append("-Thershold-%04d.tif");
     cout << "Enter Input Images Path: " << endl << input_address << endl;
-    write_inputs << input_address << endl;
+    write_inputs << input_address << '\n';
     
     string output_address = experiment_folder;
     output_address.append("/");
@@ -68,7 +74,7 @@ int main (int argc, char* argv[]){
     output_address.append(experiment_name);
     output_address.append("-MinContour-%04d.tif");
     cout << "Enter Output Images Path: " << endl << output_address << endl;
-    write_inputs << output_address << endl;
+    write_inputs << output_address << '\n';
     
     const char * path = output_address.c_str();//Path for writing output frames and data:
     char filename[500];
@@ -82,7 +88,7 @@ int main (int argc, char* argv[]){
     original_address.append(experiment_name);
     original_address.append("-Resized-%04d.tif");
     cout << "Enter Original Images Path: " << endl << original_address << endl;
-    write_inputs << original_address << endl;
+    write_inputs << original_address << '\n';
     
 
     VideoCapture cap {input_address};
@@ -113,21 +119,21 @@ int main (int argc, char* argv[]){
     input_dummy.append(experiment_name);
     input_dummy.append("-FrameStatistics.txt");
     ofstream write_statis (input_dummy);
-    write_statis << "#First frame is assumed zero frame beacuse of zero time so total frame of experiment is reduced by 1." << endl;
-    write_statis << "#" << experiment_name << endl;
+    write_statis << "#First frame is assumed zero frame beacuse of zero time so total frame of experiment is reduced by 1." << '\n';
+    write_statis << "#" << experiment_name << '\n';
     write_statis << "#(1):Frame number\t" << "(2):Normalized Frame Number\t" << "(3):A(F) (mm)\t";
-    write_statis << "(4):A(F) - error (mm)\t" << "(5):K(F) (1/mm)\t" << "(6):K(F) - error (1/mm)\t" << "(7):Var(F) (mm^2)" << endl;
+    write_statis << "(4):A(F) - error (mm)\t" << "(5):K(F) (1/mm)\t" << "(6):K(F) - error (1/mm)\t" << "(7):Var(F) (mm^2)" << '\n';
     
     input_dummy = experiment_folder;
     input_dummy.append("/");
     input_dummy.append(experiment_name);
     input_dummy.append("-SmoothedData.txt");
     ofstream write_smooth_curv (input_dummy);
-    write_smooth_curv << "#First frame is assumed zero frame beacuse of zero time so total frame of experiment is reduced by 1." << endl;
-    write_smooth_curv << "#" << experiment_name << endl;
+    write_smooth_curv << "#First frame is assumed zero frame beacuse of zero time so total frame of experiment is reduced by 1." << '\n';
+    write_smooth_curv << "#" << experiment_name << '\n';
     write_smooth_curv << "#(1):Frame number" << "\t" << "(2):Normalized Frame Number\t"  << "(3):Smoothed A(F) (mm) - Mov.Ave.\t" << "(4):Smoothed K(F) (1/mm) - Mov.Ave.\t";
     write_smooth_curv << "(5):Smooth A(F) (mm) - B.Spline\t" << "(6):Smooth A(F) - error (mm) - B.Spline\t";
-    write_smooth_curv << "(7):Smoothed K(F) (1/mm) - B.Spline\t" << "(8):Smoothed K(F) - error (1/mm) - B.Spline\t" << "(9):Var(F) (mm^2)- Mov.Ave" << endl;
+    write_smooth_curv << "(7):Smoothed K(F) (1/mm) - B.Spline\t" << "(8):Smoothed K(F) - error (1/mm) - B.Spline\t" << "(9):Var(F) (mm^2)- Mov.Ave" << '\n';
     
     input_dummy = experiment_folder;
     input_dummy.append("/");
@@ -146,34 +152,34 @@ int main (int argc, char* argv[]){
     input_dummy.append(experiment_name);
     input_dummy.append("-TransitionPoint.txt");
     ofstream write_transition (input_dummy);
-    write_transition << "#First frame is assumed zero frame beacuse of zero time so total frame of experiment is reduced by 1." << endl;
-    write_transition << "#" << experiment_name << endl;
-    write_transition << "#Index of Maximum value of second derivative (Based on array index rule):(transition frame number in curvature data = this number )" << endl;
+    write_transition << "#First frame is assumed zero frame beacuse of zero time so total frame of experiment is reduced by 1." << '\n';
+    write_transition << "#" << experiment_name << '\n';
+    write_transition << "#Index of Maximum value of second derivative (Based on array index rule):(transition frame number in curvature data = this number )" << '\n';
     write_transition << "(1) F_c - Mov. Ave. Max of var.\t";
     write_transition << "(2) F_c - Mov. Ave. Min of var. before Max.\t";
     write_transition << "(3) F_c - Mov. Ave. Max of cur.\t";
     write_transition << "(4) F_c - Mov. Ave. Min of cur. before Max.\t";
     write_transition << "(5):Index sec. deri. - Mov. Ave. \t" << "(6):Index sec. deri. - MovAve. Vari. Sec.\t";
-    write_transition << "(7) F_c - B.Spline\t" << "(8):Index sec. deri. - B.Spline Derivative method\t"  << endl;
+    write_transition << "(7) F_c - B.Spline\t" << "(8):Index sec. deri. - B.Spline Derivative method\t"  << '\n';
     
     input_dummy = experiment_folder;
     input_dummy.append("/");
     input_dummy.append(experiment_name);
     input_dummy.append("-Sec_Der_of_Curv.txt");
     ofstream write_sec_deriv (input_dummy);
-    write_sec_deriv << "#" << experiment_name << endl;
-    write_sec_deriv << "#First frame is assumed zero frame beacuse of zero time so total frame of experiment is reduced by 1." << endl;
-    write_sec_deriv << "# Numbers of second derivative points are total frame - 2." << endl;
-    write_sec_deriv << "#(1):Frame number\t" << "(2):Normalized frame number\t" << "(3):K''(F) (1/mm^3) - Mov.Ave.\t" << "(4):K''(F) (1/mm^3) - B.Spline\t" << "(5):K''(F) (1/mm^3) - B.Spline with its internal derivation process" << "(6): Variance  Sec. Deri. (mm^0):\t" << "(7): Variance Fir. Deri. (mm^1):\t" << endl;
+    write_sec_deriv << "#" << experiment_name << '\n';
+    write_sec_deriv << "#First frame is assumed zero frame beacuse of zero time so total frame of experiment is reduced by 1." << '\n';
+    write_sec_deriv << "# Numbers of second derivative points are total frame - 2." << '\n';
+    write_sec_deriv << "#(1):Frame number\t" << "(2):Normalized frame number\t" << "(3):K''(F) (1/mm^3) - Mov.Ave.\t" << "(4):K''(F) (1/mm^3) - B.Spline\t" << "(5):K''(F) (1/mm^3) - B.Spline with its internal derivation process" << "(6): Variance  Sec. Deri. (mm^0):\t" << "(7): Variance Fir. Deri. (mm^1):\t" << '\n';
     
     // Inputs:
     const double delta_t = 0.0166;
     int total_frames = cap.get(CAP_PROP_FRAME_COUNT);
     cout << "Total frames:" << total_frames << endl;
-    write_inputs << total_frames << endl;
+    write_inputs << total_frames << '\n';
     double mm_pixel = std::stod (argv[3]);
     cout << "Inter mm-to-pixel ratio: " << mm_pixel << endl;
-    write_inputs << mm_pixel << endl;
+    write_inputs << mm_pixel << '\n';
     
     //B-Spline Variables:
     const size_t spline_size = total_frames;
@@ -191,10 +197,19 @@ int main (int argc, char* argv[]){
     gsl_vector *frame_amplitude;
     frame_amplitude = gsl_vector_alloc(spline_size);
     
+    const bool show = show_windows ();
     while (!frame.empty()) {
         ++frameindex;
-        //Find Contour with maximum area in each frame:
-        findContours(frame, contours, hierarchy, RETR_EXTERNAL, CHAIN_APPROX_NONE);//OpenCV functions destroy input frame.
+        if (original.empty()) {
+            cerr << "error: fewer original (-3-Resized) frames than thresholded ones, at frame " << frameindex << endl;
+            return 1;
+        }
+        //Find the contour with the most points in each frame:
+        findContours(frame, contours, hierarchy, RETR_EXTERNAL, CHAIN_APPROX_NONE);
+        if (contours.empty()) {
+            cerr << "error: no contour in thresholded frame " << frameindex << endl;
+            return 1;
+        }
         int max_idx = 0, max_size = 0;
         for(int idx = 0; idx < contours.size(); ++idx )
         {
@@ -204,7 +219,7 @@ int main (int argc, char* argv[]){
             }
         }
         
-        //Find lowest boundary of maximum-area contour:
+        //Find the lowest boundary of that contour:
         vector<int> curve (frame.cols, -1);
         vector<int> multiplicity (frame.cols, 0);
         for (auto point : contours[max_idx])    {
@@ -215,10 +230,12 @@ int main (int argc, char* argv[]){
         for (auto i = 0; i < curve.size();++i)
             if (multiplicity[i] != 0) curves[0].push_back(Point(i, curve[i]));//for writing curves on original frames
 
-        //Drawing lowest boundary of maximum-area contour in choosen frame:
+        //Draw that boundary on the original frame:
         polylines (original, curves, false, Scalar::all(255));//
-        imshow (experiment_name +" "+to_string(frameindex)+"/"+to_string(total_frames), original);
-        waitKey (50);  //Wait time in miliseconds
+        if (show) {
+            imshow (experiment_name +" "+to_string(frameindex)+"/"+to_string(total_frames), original);
+            waitKey (50);  //Wait time in milliseconds
+        }
         
         //Calculating curvature and variance:
         int data_size = curves[0].size();
@@ -237,22 +254,25 @@ int main (int argc, char* argv[]){
         double *local_curvature = new double[data_size - 2];
         double frame_curvature;
         frame_curvature =  FrameMeanCurvature(z_data,data_size,second_derivative,first_derivative,local_curvature);
+        delete []second_derivative;
+        delete []first_derivative;
+        delete []local_curvature;
         
-        write_statis << frameindex-1 << "\t" << (double)frameindex/(spline_size-1) << "\t" << gsl_vector_get(frame_amplitude,frameindex-1) * mm_pixel << "\t" <<  mm_pixel << "\t" << frame_curvature / mm_pixel << "\t" <<  "?" << "\t" << gsl_vector_get(frame_variance,frameindex-1) * mm_pixel * mm_pixel <<endl;
+        write_statis << frameindex-1 << "\t" << (double)frameindex/(spline_size-1) << "\t" << gsl_vector_get(frame_amplitude,frameindex-1) * mm_pixel << "\t" <<  mm_pixel << "\t" << frame_curvature / mm_pixel << "\t" <<  "?" << "\t" << gsl_vector_get(frame_variance,frameindex-1) * mm_pixel * mm_pixel <<'\n';
         
         //Smoothing curvature:
         gsl_vector_set(spline_x, frameindex-1, frameindex-1);
         gsl_vector_set(spline_z, frameindex-1, frame_curvature);
         
         //Writing images:
-        sprintf (filename, path, frameindex);
+        snprintf (filename, sizeof filename, path, frameindex);
         imwrite (filename, original);
         delete []z_data;
         
         cap >> frame;
         cap_o >> original;
     }
-    write_statis << endl << endl;
+    write_statis << '\n' << '\n';
     // Smoothing by means of Moving Average method:
     int lower,upper;
     /*Smoothed Variance:*/
@@ -352,9 +372,9 @@ int main (int argc, char* argv[]){
         write_smooth_curv << gsl_vector_get (movAve_amplitude, i) * mm_pixel << "\t" << gsl_vector_get (movAve_curvature, i) / mm_pixel  << "\t";
         write_smooth_curv << gsl_vector_get (spline_amplitude, i) * mm_pixel << "\t" << gsl_vector_get (spline_amplitude_er, i) * mm_pixel << "\t";
         write_smooth_curv << gsl_vector_get (spline_curvature, i) / mm_pixel << "\t" << gsl_vector_get (spline_curvature_er, i) / mm_pixel << "\t";
-        write_smooth_curv << movAve_variance[i] * mm_pixel * mm_pixel << endl;
+        write_smooth_curv << movAve_variance[i] * mm_pixel * mm_pixel << '\n';
     }
-    write_smooth_curv << endl << endl;
+    write_smooth_curv << '\n' << '\n';
     // Frequency of No-Buckling State:
     vector<int> extremum_index;
     int extremum_counter = 0;
@@ -367,25 +387,31 @@ int main (int argc, char* argv[]){
         input_dummy.append(experiment_name);
         input_dummy.append("-FrequencyData.txt");
         ofstream write_frequency (input_dummy);
-        write_frequency << "#" << experiment_name << endl;
-        write_frequency << "(1) Number of Index:\t" << "(1) Sum of difference:\t" << "(3) Period (number of frames):\t" << "(4) Period (seconds):\t" << "(5)  Time interval(Delta t) sec.:" << endl;
+        write_frequency << "#" << experiment_name << '\n';
+        write_frequency << "(1) Number of Index:\t" << "(1) Sum of difference:\t" << "(3) Period (number of frames):\t" << "(4) Period (seconds):\t" << "(5)  Time interval(Delta t) sec.:" << '\n';
         
         for (int i = 0; i < total_frames - 3; ++i)//Be careful total_frames - 3 not total_frames - 2 !
             if ( movAve_first_deri_vari[i] * movAve_first_deri_vari[i+1] < 0){
                 ++extremum_counter;
                 extremum_index.push_back(i);
             }
-        for(int i = 0; i < extremum_index.size() - 1; ++i)//Be careful size - 1 not size !
+        if (extremum_counter < 2) {
+            cerr << "Fewer than two extrema in the smoothed variance: no oscillation period to measure." << endl;
+            write_frequency << extremum_counter << "\t" << "fewer than two extrema: no period" << '\n';
+        } else {
+        for(size_t i = 0; i + 1 < extremum_index.size(); ++i)
              extremum_sum += extremum_index[i+1] - extremum_index[i];
         extremum_half_frequency = extremum_sum / (extremum_counter - 1);//Number of extremum is one more than number of crests and picks.
         cout << "TIme interval (Delta t): " << delta_t << endl;
         cout << "Frequency in frames: " << 2 * extremum_half_frequency << endl;
         cout << "Frequency in seconds: " << (2 * extremum_half_frequency)* delta_t << endl;
         write_frequency << extremum_counter << "\t" << extremum_sum << "\t" << 2 * extremum_half_frequency << "\t";
-        write_frequency << (2 * extremum_half_frequency) * delta_t << delta_t << endl;
-        write_frequency << endl << endl << endl;
+        write_frequency << (2 * extremum_half_frequency) * delta_t << delta_t << '\n';
+        }
+        write_frequency << '\n' << '\n' << '\n';
         write_frequency.close();
     }
+    delete []movAve_first_deri_vari;   // freed here, after its last use (it used to be freed in BSplineCurvature)
     gsl_vector_free(frame_variance);
     gsl_vector_free(frame_amplitude);
     gsl_vector_free(spline_x);
@@ -420,9 +446,6 @@ double FrameMeanCurvature(double *z_data,int data_size, double * second_derivati
     
     curvature = gsl_stats_mean(local_curvature,1,data_size - 2 );
     return curvature;
-    delete []second_derivative;
-    delete []first_derivative;
-    delete []local_curvature;
 }
 
 // Moving average method over 10 Neighbours for smoothing curvature data:
@@ -485,13 +508,10 @@ void BSplineCurvature(double mm_pixel, size_t spline_size, gsl_vector *spline_x,
         
         /* fill in row i of X */
         for (spline_j = 0; spline_j < spline_coeffs; ++spline_j){
-         //B-Spline with derivative:
-            gsl_matrix_get_col (spline_sec_deri_basis, spline_derivative, 0);//get vector of d^0B_i(x)/dx^0
-            dummy = gsl_vector_get(spline_sec_deri_basis, spline_j);//get j-th element of vector of d^0B_i(x)/dx^0
+            dummy = gsl_matrix_get(spline_derivative, spline_j, 0);//d^0B_j(x)/dx^0
             gsl_matrix_set(multifit_X, spline_i, spline_j,dummy);//evaluate multifit_x at i,j
             
-            gsl_matrix_get_col (spline_sec_deri_basis, spline_derivative, 2);//get vector of d^2B_i(x)/dx^2
-            dummy = gsl_vector_get(spline_sec_deri_basis, spline_j);//get j-th element of vector of d^2B_i(x)/dx^2
+            dummy = gsl_matrix_get(spline_derivative, spline_j, 2);//d^2B_j(x)/dx^2
             gsl_matrix_set(multifit_der_X, spline_i, spline_j,dummy);//evaluate multifit_der_x at i,j
         }
     }
@@ -500,17 +520,17 @@ void BSplineCurvature(double mm_pixel, size_t spline_size, gsl_vector *spline_x,
     multifit_dof = spline_size - spline_coeffs;
     multifit_tss = gsl_stats_tss(spline_z->data, 1, spline_z->size);
     multifit_Rsq = 1.0 - multifit_chisq / multifit_tss;
-    write_spline_fitpara << "Standard error = " << stderr << endl << "chisq/dof = " <<  multifit_chisq / multifit_dof << endl;//stderr is a variable from Error Handling header file.
-    write_spline_fitpara << "Rsq = "  << multifit_Rsq << endl;
+    write_spline_fitpara << "Standard error = " << stderr << '\n' << "chisq/dof = " <<  multifit_chisq / multifit_dof << '\n';//stderr is a variable from Error Handling header file.
+    write_spline_fitpara << "Rsq = "  << multifit_Rsq << '\n';
     
     // do the fit for B-Spline with derivative:
     gsl_multifit_linear(multifit_der_X, spline_z, multifit_der_c, multifit_der_cov, & multifit_der_chisq, multifit_der_workspace);
     multifit_der_dof = spline_size - spline_coeffs;
     multifit_der_tss = gsl_stats_tss(spline_z->data, 1, spline_z->size);
     multifit_der_Rsq = 1.0 - multifit_der_chisq / multifit_der_tss;
-    write_spline_fitpara << "Second derivative data:"  << endl;
-    write_spline_fitpara << "Standard error = " << stderr << endl << "chisq/dof = " <<  multifit_der_chisq / multifit_der_dof << endl;//stderr is a variable from Error Handling header file.
-    write_spline_fitpara << "Rsq = "  << multifit_der_Rsq << endl;
+    write_spline_fitpara << "Second derivative data:"  << '\n';
+    write_spline_fitpara << "Standard error = " << stderr << '\n' << "chisq/dof = " <<  multifit_der_chisq / multifit_der_dof << '\n';//stderr is a variable from Error Handling header file.
+    write_spline_fitpara << "Rsq = "  << multifit_der_Rsq << '\n';
     write_spline_fitpara.close();
     
     // Evaluate smouthed curvatue and its second derivative by means of X and der_X matrices:
@@ -539,9 +559,9 @@ void BSplineCurvature(double mm_pixel, size_t spline_size, gsl_vector *spline_x,
     for (int j = 1; j < spline_size-1; ++j){
         dummy = gsl_vector_get(spline_curvature,j-1) - 2 * gsl_vector_get(spline_curvature,j) + gsl_vector_get(spline_curvature,j+1);
         spline_curv_sec_deri[j-1] = dummy;
-        write_sec_deriv << j-1 << "\t" << (double) (j-1)/(spline_size-2) << "\t" << movAve_sec_deri[j-1] / pow(mm_pixel,3.0)  << "\t" << spline_curv_sec_deri[j-1] / pow(mm_pixel,3.0) << "\t" << spline_sec_deri[j-1] / pow(mm_pixel,3.0) << "\t" << movAve_sec_deri_vari[j-1] << "\t" << movAve_first_deri_vari[j-1] * mm_pixel << endl;
+        write_sec_deriv << j-1 << "\t" << (double) (j-1)/(spline_size-2) << "\t" << movAve_sec_deri[j-1] / pow(mm_pixel,3.0)  << "\t" << spline_curv_sec_deri[j-1] / pow(mm_pixel,3.0) << "\t" << spline_sec_deri[j-1] / pow(mm_pixel,3.0) << "\t" << movAve_sec_deri_vari[j-1] << "\t" << movAve_first_deri_vari[j-1] * mm_pixel << '\n';
     }
-    write_sec_deriv << endl << endl;
+    write_sec_deriv << '\n' << '\n';
     write_sec_deriv.close();
     
     size_t max_index;
@@ -550,7 +570,7 @@ void BSplineCurvature(double mm_pixel, size_t spline_size, gsl_vector *spline_x,
     write_transition << max_index << "\t";
     max_index = gsl_stats_max_index (spline_sec_deri, 1,spline_size-2);
     cout << "BSpline. internal derivation F_c: " << max_index << endl;
-    write_transition << max_index << endl << endl << endl;
+    write_transition << max_index << '\n' << '\n' << '\n';
     write_transition.close();
     
     //Free memory:
@@ -571,7 +591,6 @@ void BSplineCurvature(double mm_pixel, size_t spline_size, gsl_vector *spline_x,
     delete []spline_curv_sec_deri;
     delete []movAve_sec_deri;
     delete []movAve_sec_deri_vari;
-    delete []movAve_first_deri_vari;
     delete []spline_sec_deri;
 }
 void BSplineAmplitude(size_t spline_size, gsl_vector *spline_x, gsl_vector *frame_amplitude, ofstream& write_amplitude_fitpara, int total_frames, gsl_vector *spline_amplitude, gsl_vector *spline_amplitude_er){
@@ -617,8 +636,8 @@ void BSplineAmplitude(size_t spline_size, gsl_vector *spline_x, gsl_vector *fram
     multifit_dof = spline_size - spline_coeffs;
     multifit_tss = gsl_stats_tss(frame_amplitude->data, 1, frame_amplitude->size);
     multifit_Rsq = 1.0 - multifit_chisq / multifit_tss;
-    write_amplitude_fitpara << "Standard error = " << stderr << endl << "chisq/dof = " <<  multifit_chisq / multifit_dof << endl;//stderr is a variable from Error Handling header file.
-    write_amplitude_fitpara << "Rsq = "  << multifit_Rsq << endl;
+    write_amplitude_fitpara << "Standard error = " << stderr << '\n' << "chisq/dof = " <<  multifit_chisq / multifit_dof << '\n';//stderr is a variable from Error Handling header file.
+    write_amplitude_fitpara << "Rsq = "  << multifit_Rsq << '\n';
     write_amplitude_fitpara.close();
     
     // output the smoothed curve

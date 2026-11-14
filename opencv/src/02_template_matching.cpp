@@ -22,18 +22,24 @@
 using namespace std;
 using namespace cv;
 
-int main () {//Program takes original image sequences path as input (argv[])
+// Preview windows are shown unless MSC_NO_DISPLAY is set to a non-empty value.
+static bool show_windows () {
+    const char *value = getenv ("MSC_NO_DISPLAY");
+    return !(value && *value);
+}
+
+int main () {//Reads its six inputs from stdin, one per line (see shell/bin/04_run_template_matching.sh)
     
     
     //Taking input datas like:
     string experiment_folder;
     cout << "Enter Experiment Folder: ";
-    cin >> experiment_folder;
+    getline (cin, experiment_folder);   // a whole line, so a path may contain spaces
     cout << experiment_folder << endl;
     
     string experiment_name;
     cout << "Enter Experiment Name: ";
-    cin >> experiment_name;
+    getline (cin, experiment_name);
     cout << experiment_name << endl;
     
     
@@ -89,11 +95,11 @@ int main () {//Program takes original image sequences path as input (argv[])
     cap >> frame;
     
     //Reading Templates:
-    string left_address;//Right template
+    string left_address;//Left template
     left_address = template_address;
     left_address.append("/green.tif");
     Mat left_templ = imread (left_address);
-    string right_address;//Left template
+    string right_address;//Right template
     right_address = template_address;
     right_address.append("/red.tif");
     Mat right_templ = imread (right_address);
@@ -113,18 +119,18 @@ int main () {//Program takes original image sequences path as input (argv[])
     template_address.append("/");
     template_address.append(input_dummy);
     ofstream write_data (template_address);
-    write_data << "Frame\t Time(s)\t Left side(Pixel)\t Left Position(mm)\t Right side(pixel)\t Right Position(mm)\t Length(pixel)\t Layer Length(mm)" << endl;
+    write_data << "Frame\t Time(s)\t Left side(Pixel)\t Left Position(mm)\t Right side(pixel)\t Right Position(mm)\t Length(pixel)\t Layer Length(mm)" << '\n';
     input_dummy = experiment_name;
     input_dummy.append("-Velovity-Log.txt");
     template_address2.append("/");
     template_address2.append(input_dummy);
     ofstream write_fit (template_address2);
-    write_fit << "#Linear Regression: a*x + b" << endl;
-    write_fit << "Velocity(mm/s)\t\t"  << "Velocity error(mm/s)\t\t" << "Sum Square \t\t" << "Estimated initial length \t\t"  << " Estimated initial length error(mm/s)\t\t" << endl;
+    write_fit << "#Linear Regression: a*x + b" << '\n';
+    write_fit << "Velocity(mm/s)\t\t"  << "Velocity error(mm/s)\t\t" << "Sum Square \t\t" << "Estimated initial length \t\t"  << " Estimated initial length error(mm/s)\t\t" << '\n';
     ofstream write_experiment (string(OUTPUT_DIR) + "/linear_regression_data.txt", ios::app);
     if (write_experiment.seekp(0, ios_base::beg).tellp() == write_experiment.seekp(0, ios_base::end).tellp())
     {
-    write_experiment << "#1:Experiment Name\t\t" << "2:Experiment Path\t\t" << "3:Initial Length\t\t" <<"4:Frame per seconds\t\t" << "5:Milimeters per pixel\t\t" << "6:Frequency (Hz)\t\t" << "7:Velocity(mm/s)\t\t" << "8:Velocity Error(mm/s)\t\t" << endl;
+    write_experiment << "#1:Experiment Name\t\t" << "2:Experiment Path\t\t" << "3:Initial Length\t\t" <<"4:Frame per seconds\t\t" << "5:Milimeters per pixel\t\t" << "6:Frequency (Hz)\t\t" << "7:Velocity(mm/s)\t\t" << "8:Velocity Error(mm/s)\t\t" << '\n';
     }
     
     
@@ -143,6 +149,7 @@ int main () {//Program takes original image sequences path as input (argv[])
     int frame_index=0;
     
     //Template Matching:
+    const bool show = show_windows ();
     while (!frame.empty()) {
         frame_index++;
         Mat pattern;
@@ -159,17 +166,19 @@ int main () {//Program takes original image sequences path as input (argv[])
         left.x += left_templ.cols;
         rectangle (frame, Point(0,0), Point(left.x, frame.rows), Scalar::all(0), -1);//Making left side black by means of a black colored rectangle
         rectangle (frame, Point(right.x, 0), Point(frame.cols, frame.rows), Scalar::all(0), -1);//Right side ...
-        imshow (experiment_name, frame);
-        waitKey (30);//Wait in miliseconds for next frame.
+        if (show) {
+            imshow (experiment_name, frame);
+            waitKey (30);//Wait in milliseconds for next frame.
+        }
         
         // Writing Data for Linear Regression:
-        t_data.push_back (((frame_index-1)*time_interval));//Frame number
+        t_data.push_back (((frame_index-1)*time_interval));//Time (s)
         l_data.push_back (((right.x-left.x)*mm_pixel));//Length of layer
         
         //Writing Length Data and template matched images:
         write_data << frame_index << "\t " << (frame_index-1) * time_interval << "\t " << left.x << "\t " << left.x * mm_pixel << "\t " << right.x ;
-        write_data << "\t " << right.x * mm_pixel << "\t " << (right.x-left.x) << "\t " << (right.x-left.x) * mm_pixel << endl;
-        sprintf (filename, path, frame_index);
+        write_data << "\t " << right.x * mm_pixel << "\t " << (right.x-left.x) << "\t " << (right.x-left.x) * mm_pixel << '\n';
+        snprintf (filename, sizeof filename, path, frame_index);
         imwrite (filename, frame);
         
         cap >> frame;
@@ -179,22 +188,15 @@ int main () {//Program takes original image sequences path as input (argv[])
     //Calculating Linear Regression:
     data_size = t_data.size();
     int status_func;
-    double * length_data = new double[data_size];
-    double * time_data = new double[data_size];
-    
-    for (int i = 0; i < data_size; i++) {
-        time_data[i] = t_data[i];
-        length_data[i] = l_data[i];
-    }
-    status_func = gsl_fit_linear (time_data, stride, length_data, stride, data_size, &l_initial, &velocity, &cov00, &cov01, &cov11, &sum_square);
+    status_func = gsl_fit_linear (t_data.data(), stride, l_data.data(), stride, data_size, &l_initial, &velocity, &cov00, &cov01, &cov11, &sum_square);
 
     if(status_func){/* an error occurred */
         printf ("error: %s\n", gsl_strerror (status_func));
     }
     double velocity_error = sqrt(cov11);
     double l_initial_error = sqrt(cov00);
-    write_experiment << experiment_name << "\t" << save_address << "\t" << length_initial << "\t" << frame_second << "\t" << mm_pixel << "\t" << frequency << "\t" << velocity << "\t" << velocity_error << endl;
-    write_fit << velocity << "\t" << velocity_error << "\t" << sum_square << "\t" << l_initial << "\t" << l_initial_error << "\t" <<endl;
+    write_experiment << experiment_name << "\t" << save_address << "\t" << length_initial << "\t" << frame_second << "\t" << mm_pixel << "\t" << frequency << "\t" << velocity << "\t" << velocity_error << '\n';
+    write_fit << velocity << "\t" << velocity_error << "\t" << sum_square << "\t" << l_initial << "\t" << l_initial_error << "\t" <<'\n';
     
     
     
