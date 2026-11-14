@@ -140,7 +140,7 @@ four of the 70 experiments.
 - `experiment_names.txt`, `experiment_paths.txt`, `image_sequence_paths.txt`
 - `initial_length_mm.txt`, `motor_frequency_hz.txt`, `frames_per_second.txt`, `pixels_per_mm.txt`
 - `stage2_input_table_original.txt` — the table as actually used in
-  2016, preserved verbatim (see *Corrections* below)
+  2016, preserved apart from the folder prefix of its paths (see *Corrections* below)
 
 `curvature-reference/` is stage 3/4 output for a single experiment, kept as
 reference data so the plotting scripts are runnable without rerunning
