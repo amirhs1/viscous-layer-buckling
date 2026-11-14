@@ -13,6 +13,7 @@ date-released: 2026-11-14
 authors:
   - given-names: Amir
     family-names: Sadeghi
+    orcid: "https://orcid.org/0009-0008-3073-866X"
 license: MIT
 doi: 10.5281/zenodo.24227730
 repository-code: "https://github.com/amirhs1/viscous-layer-buckling"
