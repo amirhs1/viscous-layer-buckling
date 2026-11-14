@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using the metadata from this file."
+title: "Buckling of a floating viscous layer: MSc analysis code"
+abstract: >-
+  Analysis code from an MSc thesis on the compression of a
+  thin viscous layer floating on a liquid substrate in a rectangular geometry.
+  An OpenCV pipeline extracts amplitude and curvature time series from video
+  of the layer, and gnuplot scripts reproduce the thesis figures, including
+  the thicken-to-buckle transition.
+type: software
+authors:
+  - given-names: Amir
+    family-names: Sadeghi
+license: MIT
+repository-code: "https://github.com/amirhs1/viscous-layer-buckling"
+keywords:
+  - viscous buckling
+  - thin films
+  - fluid mechanics
+  - image processing
+  - OpenCV
