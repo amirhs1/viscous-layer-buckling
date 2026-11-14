@@ -1,6 +1,7 @@
 # Buckling of a floating viscous layer: MSc analysis code
 
 [![Licence: MIT](https://img.shields.io/badge/licence-MIT-blue.svg)](LICENSE)
+[![Tests](https://github.com/amirhs1/viscous-layer-buckling/actions/workflows/tests.yml/badge.svg)](https://github.com/amirhs1/viscous-layer-buckling/actions/workflows/tests.yml)
 
 This repository holds the analysis code from an MSc thesis in physics
 (Institute for Advanced Studies in Basic Sciences, IASBS, Zanjan, 2014–2017).
@@ -20,6 +21,7 @@ The thesis text is not included here.
 | [`opencv/`](opencv/README.md) | The analysis. A C++ pipeline (OpenCV / GSL / Boost) in four sequential stages, built by one CMake project, that extracts amplitude and curvature over time from the video. `variants/` keeps three experimental versions that are not built. |
 | [`shell/`](shell/README.md) | Batch drivers. They assemble the per-experiment inputs, run the 70 experiments through the pipeline unattended, and plot the result. |
 | [`gnuplot/`](gnuplot/README.md) | The figures. Thirteen gnuplot files produce 21 figures (20 for the thesis and gnuplot's `test` page), and `./render.sh` renders them all. `velocity_frequency/` holds the critical-velocity fit. |
+| [`tests/`](tests/README.md) | The test suite. It generates its own inputs, so it needs no data: `tests/run_tests.sh`. |
 
 The folders depend on each other in one direction only. `shell/` drives `opencv/`:
 its step 4 feeds the batch table to the stage 2 executable. `gnuplot/` stands alone and
@@ -43,6 +45,7 @@ data (the 21 in `gnuplot/`, the two in `gnuplot/velocity_frequency/` and the two
 | `opencv/` | CMake >= 3.5, a C++11 compiler, OpenCV 4 or later, GSL, Boost `filesystem` (built and tested on 2026-11-14 with CMake 4.5, OpenCV 5.1, GSL 2.8, Boost 1.92) |
 | `shell/` | Bash 3.2+, gnuplot 5+ with the `pngcairo` terminal |
 | `gnuplot/` | gnuplot 5+ (verified on 6.0); ghostscript only for `render.sh --png` |
+| `tests/` | nothing more than `opencv/` and `gnuplot/` need |
 
 ## Data availability
 

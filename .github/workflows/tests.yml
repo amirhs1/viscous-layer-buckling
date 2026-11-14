@@ -1,0 +1,20 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  tests:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install the build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            cmake g++ libopencv-dev libgsl-dev libboost-filesystem-dev gnuplot-nox
+      - name: Run the test suite
+        run: tests/run_tests.sh
