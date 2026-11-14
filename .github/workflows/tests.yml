@@ -18,3 +18,12 @@ jobs:
             cmake g++ libopencv-dev libgsl-dev libboost-filesystem-dev gnuplot-nox
       - name: Run the test suite
         run: tests/run_tests.sh
+      - name: Keep the test outputs of a failed run
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tests-work
+          path: |
+            tests/work
+            !tests/work/build*
+          retention-days: 7

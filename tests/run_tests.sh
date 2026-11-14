@@ -17,7 +17,7 @@ rm -rf "${W:?}"; mkdir -p "$W"
 
 pass=0; fail=0
 check () {   # description, condition (evaluated)
-    if eval "$2"; then echo "  PASS  $1"; pass=$((pass + 1)); else echo "  FAIL  $1"; fail=$((fail + 1)); fi
+    if eval "$2"; then echo "  PASS  $1"; pass=$((pass + 1)); else echo "  FAIL  $1"; fail=$((fail + 1)); return 1; fi
 }
 near () {    # value, expected, tolerance
     awk -v a="$1" -v b="$2" -v t="$3" 'BEGIN { d = a - b; if (d < 0) d = -d; exit !(a != "" && d <= t) }'
@@ -38,6 +38,9 @@ same_stats () {   # stage (3 or 4), expected.txt, FrameStatistics.txt, mm per pi
             seen++
         }
         END { if (bad) exit 1; if (seen != n) { printf "    %d frames, expected %d\n", seen, n; exit 1 } }' "$2" "$3"
+}
+show_log () {   # file: print its last lines, to see why a stage failed
+    echo "    --- last lines of ${1#"$W"/}:"; tail -n 8 "$1" | sed 's/^/    /'
 }
 stage34_inputs () {   # experiment folder, mode
     local name=${1##*/}
@@ -79,18 +82,19 @@ echo "stage 3: interface-statistics (a sinusoidal interface whose amplitude grow
 N=D1111_11_11-T11_11
 stage34_inputs "$W/stage3/$N" growing
 echo 0.1 | "$B/interface-statistics" "$W/stage3/$N" "$N" > "$W/stage3.log" 2>&1; rc=$?
-check "exit 0" '[[ $rc == 0 ]]'
+check "exit 0" '[[ $rc == 0 ]]' || show_log "$W/stage3.log"
 check "amplitude and variance of every frame match the interface (0.1 mm per pixel)" \
     'same_stats 3 "$W/stage3/$N/expected.txt" "$W/stage3/$N/$N-FrameStatistics.txt" 0.1'
 K=D2222_22_22-T22_22
 stage34_inputs "$W/stage3-blank/$K" blank
 out=$(echo 0.1 | "$B/interface-statistics" "$W/stage3-blank/$K" "$K" 2>&1); rc=$?
-check "stops with a message at a frame with no contour" '[[ $rc != 0 && $out == *"no contour in thresholded frame 2"* ]]'
+check "stops with a message at a frame with no contour" '[[ $rc != 0 && $out == *"no contour in thresholded frame 2"* ]]' ||
+    { echo "$out" > "$W/stage3-blank.log"; show_log "$W/stage3-blank.log"; }
 
 echo "stage 4: final-pipeline"
 stage34_inputs "$W/stage4/$N" growing
 "$B/final-pipeline" "$W/stage4/$N" "$N" 0.1 0 > "$W/stage4.log" 2>&1; rc=$?
-check "growing interface, period switch 0: exit 0" '[[ $rc == 0 ]]'
+check "growing interface, period switch 0: exit 0" '[[ $rc == 0 ]]' || show_log "$W/stage4.log"
 check "amplitude and variance of every frame match the interface" \
     'same_stats 4 "$W/stage4/$N/expected.txt" "$W/stage4/$N/$N-FrameStatistics.txt" 0.1'
 check "writes the smoothed data and the transition point" '[[ -s $W/stage4/$N/$N-SmoothedData.txt && -s $W/stage4/$N/$N-TransitionPoint.txt ]]'
@@ -98,7 +102,7 @@ O=D4444_44_44-T44_44
 stage34_inputs "$W/stage4-osc/$O" oscillating
 out=$("$B/final-pipeline" "$W/stage4-osc/$O" "$O" 0.1 1 2>&1); rc=$?
 check "oscillating interface, period switch 1: reports 25.7143 frames for a 24-frame period (see Known issues)" \
-    '[[ $rc == 0 && $out == *"Frequency in frames: 25.7143"* ]]'
+    '[[ $rc == 0 && $out == *"Frequency in frames: 25.7143"* ]]' || { echo "$out" > "$W/stage4-osc.log"; show_log "$W/stage4-osc.log"; }
 out=$("$B/final-pipeline" "$W/stage4/$N" "$N" 0.1 2>&1); rc=$?
 check "without the period switch: prints its usage and exits non-zero" '[[ $rc != 0 && $out == *"Usage: final-pipeline"* ]]'
 
