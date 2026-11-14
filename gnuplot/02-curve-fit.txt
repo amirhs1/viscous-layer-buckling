@@ -17,7 +17,7 @@ unset key
 
 set grid
 set tics  font "Times-Roman, 10"
-set xlabel "Normalised Time"
+set xlabel "Normalized Time"
 set ylabel 'K (mm^{-1})' offset 0.7,0
 
 plot DATA_DIR.'/series/D1394_11_24-T19_19/D1394_11_24-T19_19-SmoothedData.txt' u 2:4 , '' u 2:($4-A_mean)

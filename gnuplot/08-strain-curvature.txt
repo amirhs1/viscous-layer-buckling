@@ -11,7 +11,7 @@ stats DATA_DIR.'/series/transition/newtime-transition-velocity.txt' index 0 usin
 stats DATA_DIR.'/series/transition/newtime-transition-velocity.txt' index 0 using 7 every ::16::27 prefix "eps0011"
 mean1 = eps0016_mean
 set xlabel '{/Symbol t}_{Je^{-}} D^0_{xx}'
-set ylabel 'Normalised Transition Time'
+set ylabel 'Normalized Transition Time'
 set title 'Transition vs Strain Rate based on Curvature min'
 set key off 
 #set key font "Courier, 10"

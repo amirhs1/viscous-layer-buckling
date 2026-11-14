@@ -10,8 +10,8 @@ stats DATA_DIR.'/series/transition/newtime-transition-velocity.txt' index 0 usin
 stats DATA_DIR.'/series/transition/newtime-transition-velocity.txt' index 0 using 7 every ::11::15 prefix "eps0012"
 stats DATA_DIR.'/series/transition/newtime-transition-velocity.txt' index 0 using 7 every ::16::27 prefix "eps0011"
 set xlabel 'Local Strain Rate: {/Symbol t}_{Je^{-}} D_{xx}(t_c)'
-set ylabel 'Normalised Transition Time'
-set title 'Tansition vs Local Strain Rate'
+set ylabel 'Normalized Transition Time'
+set title 'Transition vs Local Strain Rate'
 set key off 
 #set key font "Courier, 10"
 set autoscale

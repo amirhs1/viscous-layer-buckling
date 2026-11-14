@@ -5,7 +5,7 @@
 # text and transition-frame indices live in meta/, not in the script.
 #
 # Required:  DATA  path to an indexed multi-block data file
-#            COL   column to plot against normalised time (column 2)
+#            COL   column to plot against normalized time (column 2)
 #            META  basename under meta/ supplying .titles/.marks1/.marks2
 #            OUT   output path
 #            YLAB  y-axis label
@@ -44,7 +44,7 @@ MARK2(i) = int(system(sprintf("sed -n '%dp' '%s'", i + 1, M2)))
 set terminal postscript eps colortext color "Courier, 10"
 set output OUT
 set grid
-set xlabel 'Normalised time'
+set xlabel 'Normalized time'
 set ylabel YLAB
 if (TTL ne "") { set title TTL }
 eval "set key ".KEY

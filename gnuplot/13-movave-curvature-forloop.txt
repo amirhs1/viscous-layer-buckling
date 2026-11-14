@@ -6,7 +6,7 @@ set terminal postscript eps colortext color
 set output 'images/13-movave-curvature-forloop.eps'
 set key off
 set key bmargin 
-set xlabel 'Normalised Time '
+set xlabel 'Normalized Time '
 set ylabel 'Curvature (mm^{-1})'
 set title 'Curvature vs. Time in different Compression velocity with transition points'
 

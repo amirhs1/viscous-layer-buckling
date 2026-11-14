@@ -7,7 +7,7 @@ set output 'images/12-movave-curvature-4data.eps'
 #set logscale
 set grid
 
-set xlabel 'Normalised Time '
+set xlabel 'Normalized Time '
 set ylabel 'Curvature (mm^{-1})'
 set title 'Curvature vs. Time in different Compression velocity with transition points'
 set key left
