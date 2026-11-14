@@ -24,7 +24,6 @@ using namespace cv;
 
 int main () {//Program takes original image sequences path as input (argv[])
     
-    //freopen("expriment-inputs.txt","r",stdin);
     
     //Taking input datas like:
     string experiment_folder;
@@ -80,8 +79,6 @@ int main () {//Program takes original image sequences path as input (argv[])
     boost::filesystem::create_directory(experiment_folder);//Create directory (folder) for saving tamplate matchted image sequences:
     
     //Reading image sequences:
-//    if (argc == 1) return 1;
-//    string arg = argv[1];
     VideoCapture cap {input_address};
     if (!cap.isOpened())
     {
@@ -129,8 +126,6 @@ int main () {//Program takes original image sequences path as input (argv[])
     {
     write_experiment << "#1:Experiment Name\t\t" << "2:Experiment Path\t\t" << "3:Initial Length\t\t" <<"4:Frame per seconds\t\t" << "5:Milimeters per pixel\t\t" << "6:Frequency (Hz)\t\t" << "7:Velocity(mm/s)\t\t" << "8:Velocity Error(mm/s)\t\t" << endl;
     }
-//    ofstream write_wavenumber ("wavenumber.txt");
-//    write_wavenumber << "Frame Number\t" << "Normalized frame number\t" << "Frame maximum wavenumbr (1/mm)" << endl;
     
     
     //Defining Linear Regression Parameters: y = a*x + b
@@ -201,32 +196,9 @@ int main () {//Program takes original image sequences path as input (argv[])
     write_experiment << experiment_name << "\t" << save_address << "\t" << length_initial << "\t" << frame_second << "\t" << mm_pixel << "\t" << frequency << "\t" << velocity << "\t" << velocity_error << endl;
     write_fit << velocity << "\t" << velocity_error << "\t" << sum_square << "\t" << l_initial << "\t" << l_initial_error << "\t" <<endl;
     
-    // Theoretical most unstable wavenumber for wrinkling (undulating) state:
-//    double heigth_0 = 1.99; //in milimeters.
-//    double tau = 139;// Viscous-Hydrodynamical (Gravity) charateristic time (s).
-//    double tau_1 = 5759988;// Viscous-Tentional charateristic tim (s).
-//    double bond_number = tau_1/tau;
-//    double * strain_rate = new double[data_size];// in s^-1.
-//    double * control_para = new double[data_size];//Control parameter.
-//    double * k_wrinkling = new double[data_size];//Maximum wavenmuber.
-//    for (int i = 0; i < data_size; i++) {
-//        strain_rate[i] = velocity / length_data[i];
-//        control_para[i] = -2 * tau * strain_rate[i] * (1 / (2 * bond_number));
-//        k_wrinkling[i] = 1/(heigth_0 * sqrt(control_para[i]));
-//        write_wavenumber << i+1 << "\t" << (double) (i+1) / data_size << "\t" << k_wrinkling[i] << endl;
-//    }
-    
-    // Theoretical maximum wavenumber for coupled state:
-//    double *height_t = new double[data_size];
     
     
-//    delete []time_data;
-//    delete []length_data;
-//    delete []strain_rate;
-//    delete []control_para;
-//    delete []k_wrinkling;
-//    delete []k_coupled;
-//    write_wavenumber.close();
+    
     write_data.close();
     write_fit.close();
     return 0;

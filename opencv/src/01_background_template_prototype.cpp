@@ -23,7 +23,6 @@ int main (int argc, char* argv[]) {
   const string template_dir {TEMPLATE_DIR};
   Mat frame, left_templ=imread (template_dir + "/left.jpg"), right_templ=imread (template_dir + "/right.jpg");
   cap >> frame;
-//   imwrite ("test.jpg", frame);
   cout << frame.size() << endl;
   bool first{true};
   int initial_width, initial_height;
@@ -51,8 +50,6 @@ int main (int argc, char* argv[]) {
       Size size {initial_width, initial_height};
       resize (cropped, resized, size);
       absdiff (resized, previous, diff);
-//       bgsubtractor->apply (resized, fg, 1);
-//       diff = fg;
       previous = resized;
       resize (diff, diff, current);
       cvtColor (diff, diff, COLOR_BGR2GRAY);
@@ -60,14 +57,6 @@ int main (int argc, char* argv[]) {
       imshow ("diff", diff);
     }
     imshow ("", cropped);
-//     cvtColor (cropped, cropped, COLOR_BGR2GRAY);
-//     const int channels[] = {0}, histsize[] = {256};
-//     const float grange[] = {0, 255};
-//     const float *range[] = {grange};
-//     MatND hist;
-//     calcHist (&cropped, 1, channels, Mat{}, hist, 1, histsize, range);
-//     cout << hist << endl;
-//     cout << pattern << endl;
     waitKey (30);
     cap >> frame;
   }

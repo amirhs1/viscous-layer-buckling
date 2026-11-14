@@ -188,21 +188,9 @@ int main (int argc, char* argv[]){
         }
         vector<vector<Point>> curves (1);
         for (auto i = 0; i < curve.size();++i) {
-            //            if (multiplicity[i] != 0) curves[0].push_back(Point(i, curve[i]));
             if (multiplicity[i] != 0) curves[0].push_back(Point(i, curve[i]));//for writing curves on original frames
         }
         
-        //Find average curve of maximum-area contour:
-        //        vector<int> curve (frame.cols, -1);
-        //        vector<int> multiplicity (frame.cols, 0);
-        //        for (auto point : contours[max_idx]) {
-        //            ++multiplicity[point.x];
-        //            curve[point.x] += point.y;
-        //        }
-        //        vector<vector<Point>> curves (1);
-        //        for (auto i = 0; i < curve.size();++i) {
-        //            if (multiplicity[i] != 0) curves[0].push_back(Point(i, curve[i]/multiplicity[i]));
-        //        }
         
         
         //Saving maximum-area contour:
@@ -253,16 +241,6 @@ int main (int argc, char* argv[]){
         write_statis << frame_fft_max << endl;
         delete []fft_data;
         
-        // Mean Local Curvature  over 10 neighbours:
-        //        int lower,upper;
-        //        double *fr_cur_mean = new double[curves[0].size()-2];
-        //        for (int j = 0; j < curves[0].size()-2; ++j){
-        //            fr_cur_mean[j] =  mean_curvature(sec_deriv,(curves[0].size()-2),j);
-        //        }
-        //        double fr_cur_mean_new;
-        //        fr_cur_mean_new = gsl_stats_mean(fr_cur_mean,1,(curves[0].size()-2));
-        //        variance << frameindex << "\t" << (float)frameindex/spline_size << "\t" << "\t" << fr_variance << endl;
-        //        delete []fr_cur_mean;
         
         //Writing images:
         sprintf (filename, path, frameindex);
@@ -365,7 +343,6 @@ void SmoothingCurvature(size_t spline_size, gsl_vector *spline_x, gsl_vector *sp
     const int spline_order = 4;
     const size_t spline_breaks = 5;
     const size_t spline_coeffs = spline_breaks + spline_order -2;
-//    const size_t spline_nderiv = 2;
     gsl_bspline_workspace *spline_workspace;
     gsl_vector *spline_basis;
     gsl_vector *multifit_c;
@@ -373,11 +350,6 @@ void SmoothingCurvature(size_t spline_size, gsl_vector *spline_x, gsl_vector *sp
     gsl_multifit_linear_workspace *multifit_workspace;
     double multifit_chisq, multifit_Rsq, multifit_dof, multifit_tss;
     
-//    gsl_matrix *spline_derivative;
-//    gsl_vector *multifit_der_c;
-//    gsl_matrix *multifit_der_X, *multifit_der_cov;
-//    gsl_multifit_linear_workspace *multifit_der_workspace;
-//    double multifit_der_chisq, multifit_der_Rsq, multifit_der_dof, multifit_der_tss;
     
     /* allocate a k order bspline workspace (k = spline_order) */
     spline_workspace = gsl_bspline_alloc(spline_order, spline_breaks);
@@ -388,20 +360,12 @@ void SmoothingCurvature(size_t spline_size, gsl_vector *spline_x, gsl_vector *sp
     multifit_cov = gsl_matrix_alloc(spline_coeffs, spline_coeffs);
     multifit_workspace = gsl_multifit_linear_alloc(spline_size, spline_coeffs);
     
-//    spline_derivative = gsl_matrix_alloc(spline_coeffs, spline_nderiv+1);
-//    multifit_der_X = gsl_matrix_alloc(spline_size, spline_coeffs);
-//    multifit_der_c = gsl_vector_alloc(spline_coeffs);
-//    multifit_der_cov = gsl_matrix_alloc(spline_coeffs, spline_coeffs);
-//    multifit_der_workspace = gsl_multifit_linear_alloc(spline_size, spline_coeffs);
     
     /* use uniform breakpoints based on total frames */
     gsl_bspline_knots_uniform(0,spline_size-1, spline_workspace);
     
     /* construct the fit matrix X */
     double basis_dummy;
-//    double sec_deriv_dummy;
-//    gsl_vector *vector_dummy;
-//    vector_dummy = gsl_vector_alloc(spline_coeffs);
     
     for (spline_i = 0; spline_i < spline_size; ++spline_i)
     {
@@ -409,19 +373,12 @@ void SmoothingCurvature(size_t spline_size, gsl_vector *spline_x, gsl_vector *sp
         
         /* compute B_j(xi) for all j */
         gsl_bspline_eval(spline_xdummy, spline_basis, spline_workspace);
-//        gsl_bspline_deriv_eval(spline_xdummy, spline_nderiv, spline_derivative, spline_workspace);
         
         /* fill in row i of X */
         for (spline_j = 0; spline_j < spline_coeffs; ++spline_j)
         {
             basis_dummy = gsl_vector_get(spline_basis, spline_j);
             gsl_matrix_set(multifit_X, spline_i, spline_j,basis_dummy);
-         //B-Spline with derivative:
-//            gsl_matrix_get_col (vector_dummy, spline_derivative, 0);
-//            basis_dummy = gsl_vector_get(vector_dummy, spline_j);
-//            gsl_matrix_get_col (vector_dummy, spline_derivative, 2);
-//            sec_deriv_dummy = gsl_vector_get(vector_dummy, spline_j);
-//            gsl_matrix_set(multifit_der_X, spline_i, spline_j, sec_deriv_dummy);
         }
     }
     /* do the fit */
@@ -433,19 +390,10 @@ void SmoothingCurvature(size_t spline_size, gsl_vector *spline_x, gsl_vector *sp
     write_spline_fitpara << "Rsq = "  << multifit_Rsq << endl;
     write_spline_fitpara.close();
     
-    // do the fit for B-Spline with derivative:
-//    gsl_multifit_linear(multifit_der_X, spline_y, multifit_der_c, multifit_der_cov, & multifit_der_chisq, multifit_der_workspace);
-//    multifit_der_dof = spline_size - spline_coeffs;
-//    multifit_der_tss = gsl_stats_tss(spline_y->data, 1, spline_y->size);
-//    multifit_der_Rsq = 1.0 - multifit_der_chisq / multifit_der_tss;
-//    write_fitpara << "Second derivative data"  << endl;
-//    write_fitpara << "Standard error = " << stderr << endl << "chisq/dof = " <<  multifit_der_chisq / multifit_der_dof << endl;//stderr is a variable from Error Handling header file.
-//    write_fitpara << "Rsq = "  << multifit_der_Rsq << endl;
     
     // output the smoothed curve
     double multifit_yi,multifit_yerr;
     
-//    double multifit_der_yi,multifit_der_yerr;
     gsl_vector *smoothed_curvature;
     smoothed_curvature = gsl_vector_alloc(spline_size);
     for (int frame_number = 0 ; frame_number < spline_size; frame_number++)
@@ -453,17 +401,10 @@ void SmoothingCurvature(size_t spline_size, gsl_vector *spline_x, gsl_vector *sp
         gsl_bspline_eval(frame_number, spline_basis, spline_workspace);
         gsl_multifit_linear_est(spline_basis, multifit_c, multifit_cov, &multifit_yi, &multifit_yerr);
         
-    // B-Spline with derivative
-//        gsl_bspline_deriv_eval(frame_number, spline_nderiv, spline_derivative, spline_workspace);
-//        gsl_matrix_get_col (vector_dummy, spline_derivative, 0);
-//        gsl_multifit_linear_est(vector_dummy, multifit_c, multifit_cov, &multifit_yi, &multifit_yerr);
-//        gsl_matrix_get_col (vector_dummy, spline_derivative, 2);
-//        gsl_multifit_linear_est(vector_dummy, multifit_der_c, multifit_der_cov, &multifit_der_yi, &multifit_der_yerr);
         
     //Smoothed data for calculating second derivative of curvature:
     gsl_vector_set(smoothed_curvature,frame_number, multifit_yi);
     gsl_vector_set(spline_smooth, frame_number, multifit_yi);
-//        write_spline << frame_number+1  << "\t" << (double)(frame_number+1)/spline_size << "\t" << multifit_yi << "\t" << multifit_der_yi << endl;
     }
     //Second Derivative of smouthed data:
     float dummy;
@@ -492,12 +433,6 @@ void SmoothingCurvature(size_t spline_size, gsl_vector *spline_x, gsl_vector *sp
     gsl_matrix_free(multifit_cov);
     gsl_multifit_linear_free(multifit_workspace);
     
-//    gsl_matrix_free(multifit_der_X);
-//    gsl_vector_free(multifit_der_c);
-//    gsl_matrix_free(multifit_der_cov);
-//    gsl_matrix_free(spline_derivative);
-//    gsl_vector_free(vector_dummy);
-//    gsl_multifit_linear_free(multifit_der_workspace);
     
     gsl_vector_free(smoothed_curvature);
     delete []curv_sec_deri;
@@ -509,7 +444,6 @@ void SmoothingAmplitude(size_t spline_size, gsl_vector *spline_x, gsl_vector *fr
     const int spline_order = 4;
     const size_t spline_breaks = 5;
     const size_t spline_coeffs = spline_breaks + spline_order -2;
-    //    const size_t spline_nderiv = 2;
     gsl_bspline_workspace *spline_workspace;
     gsl_vector *spline_basis;
     gsl_vector *multifit_c;

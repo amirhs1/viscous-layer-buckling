@@ -173,7 +173,6 @@ int main (int argc, char* argv[]){
     write_inputs << total_frames << endl;
     double mm_pixel = std::stod (argv[3]);
     cout << "Inter mm-to-pixel ratio: " << mm_pixel << endl;
-//    cin >> mm_pixel;
     write_inputs << mm_pixel << endl;
     
     //B-Spline Variables:
@@ -233,7 +232,6 @@ int main (int argc, char* argv[]){
         var_dummy = gsl_stats_variance(z_data,1,data_size);
         gsl_vector_set(frame_variance, frameindex-1, var_dummy);
         
-//        int  derivative_neighbours = 1;
         double *second_derivative = new double[data_size - 2];// For the first and the last points, Could not define second derivative.
         double *first_derivative = new double[data_size - 2];// For the first and the last points, Could not define first derivative.
         double *local_curvature = new double[data_size - 2];
@@ -448,10 +446,8 @@ void BSplineCurvature(double mm_pixel, size_t spline_size, gsl_vector *spline_x,
     const size_t spline_nderiv = 2;
     
     gsl_bspline_workspace *spline_workspace;
-//    gsl_vector *spline_basis;
     gsl_vector *multifit_c;
     gsl_matrix *multifit_X, *multifit_cov;
-//    gsl_multifit_linear_workspace *multifit_workspace;
     double multifit_chisq, multifit_Rsq, multifit_dof, multifit_tss;
     
     gsl_matrix *spline_derivative;
@@ -463,11 +459,9 @@ void BSplineCurvature(double mm_pixel, size_t spline_size, gsl_vector *spline_x,
     /* allocate a k order bspline workspace (k = spline_order) */
     spline_workspace = gsl_bspline_alloc(spline_order, spline_breaks);
     
-//    spline_basis = gsl_vector_alloc(spline_coeffs);
     multifit_X = gsl_matrix_alloc(spline_size, spline_coeffs);
     multifit_c = gsl_vector_alloc(spline_coeffs);
     multifit_cov = gsl_matrix_alloc(spline_coeffs, spline_coeffs);
-//    multifit_workspace = gsl_multifit_linear_alloc(spline_size, spline_coeffs);
     
     spline_derivative = gsl_matrix_alloc(spline_coeffs, spline_nderiv+1);
     multifit_der_X = gsl_matrix_alloc(spline_size, spline_coeffs);
@@ -480,8 +474,6 @@ void BSplineCurvature(double mm_pixel, size_t spline_size, gsl_vector *spline_x,
     
     /* construct the fit matrix X */
     double dummy;
-//    double basis_dummy;
-//    double sec_deriv_dummy;
     gsl_vector *spline_sec_deri_basis;
     spline_sec_deri_basis = gsl_vector_alloc(spline_coeffs);
     
@@ -489,13 +481,10 @@ void BSplineCurvature(double mm_pixel, size_t spline_size, gsl_vector *spline_x,
         spline_xdummy = gsl_vector_get(spline_x, spline_i);
         
         /* compute B_j(xi) and its derivative for all j */
-//        gsl_bspline_eval(spline_xdummy, spline_basis, spline_workspace);
         gsl_bspline_deriv_eval(spline_xdummy, spline_nderiv, spline_derivative, spline_workspace);
         
         /* fill in row i of X */
         for (spline_j = 0; spline_j < spline_coeffs; ++spline_j){
-//            basis_dummy = gsl_vector_get(spline_basis, spline_j);//zero order basis
-//            gsl_matrix_set(multifit_X, spline_i, spline_j,basis_dummy);
          //B-Spline with derivative:
             gsl_matrix_get_col (spline_sec_deri_basis, spline_derivative, 0);//get vector of d^0B_i(x)/dx^0
             dummy = gsl_vector_get(spline_sec_deri_basis, spline_j);//get j-th element of vector of d^0B_i(x)/dx^0
@@ -530,8 +519,6 @@ void BSplineCurvature(double mm_pixel, size_t spline_size, gsl_vector *spline_x,
     double * spline_sec_deri = new double[spline_size];
     
     for (int frame_number = 0 ; frame_number < spline_size; frame_number++){
-//        gsl_bspline_eval(frame_number, spline_basis, spline_workspace);
-//        gsl_multifit_linear_est(spline_basis, multifit_c, multifit_cov, &multifit_yi, &multifit_yerr);
         
     // B-Spline with derivative
         gsl_bspline_deriv_eval(frame_number, spline_nderiv, spline_derivative, spline_workspace);
@@ -568,13 +555,11 @@ void BSplineCurvature(double mm_pixel, size_t spline_size, gsl_vector *spline_x,
     
     //Free memory:
     gsl_bspline_free(spline_workspace);
-//    gsl_vector_free(spline_basis);
     gsl_vector_free(spline_z);
     
     gsl_matrix_free(multifit_X);
     gsl_vector_free(multifit_c);
     gsl_matrix_free(multifit_cov);
-//    gsl_multifit_linear_free(multifit_workspace);
     
     gsl_matrix_free(multifit_der_X);
     gsl_vector_free(multifit_der_c);
@@ -596,7 +581,6 @@ void BSplineAmplitude(size_t spline_size, gsl_vector *spline_x, gsl_vector *fram
     const int spline_order = 4;
     const size_t spline_breaks = 5;
     const size_t spline_coeffs = spline_breaks + spline_order -2;
-    //    const size_t spline_nderiv = 2;
     gsl_bspline_workspace *spline_workspace;
     gsl_vector *spline_basis;
     gsl_vector *multifit_c;
